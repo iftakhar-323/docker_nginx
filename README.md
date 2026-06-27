@@ -198,8 +198,6 @@ Docker downloads each layer of the image in parallel and confirms each layer as 
 
 <p align="center"><img src="image/docker_pull.png" alt="Terminal mid-way through docker pull nginx: Docker has started downloading layers and the first progress lines are visible."></p>
 
-<p align="center"><img src="image/docker_pull.png" alt="Terminal after docker pull nginx completes: the full layer list is shown, followed by Digest and Status: Downloaded newer image for nginx:latest."></p>
-
 #### Understanding
 
 The `docker pull` command performs two actions:
@@ -216,8 +214,6 @@ docker images
 ```
 
 <p align="center"><img src="image/docker_image.png" alt="Terminal showing docker images: a table with REPOSITORY, TAG, IMAGE ID, CREATED, and SIZE columns. nginx appears with tag latest."></p>
-
-<p align="center"><img src="image/docker_image.png" alt="Same docker images output: each row is one image with its tag, ID, created time, and size. Useful when you have multiple images and need to read IDs precisely."></p>
 
 Predict: which columns will this command display?
 
@@ -385,7 +381,7 @@ Step 3: Attempt the same request.
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/docker_pause.png" alt="curl prints Connection refused on port 8080. The container is still running, but there is no bridge from the host. This is the symptom of a missing -p flag."></p>
+<p align="center"><img src="image/docker-stop.png" alt="curl prints Connection refused on port 8080. The container is still running, but there is no bridge from the host. This is the symptom of a missing -p flag."></p>
 
 What happens, and why?
 
@@ -466,8 +462,6 @@ docker ps
 
 <p align="center"><img src="image/docker-ps.png" alt="Table with NAMES my-nginx, STATUS Up, PORTS 0.0.0.0:8080->80/tcp. This confirms the process is alive, the name is correct, and the port mapping is active."></p>
 
-<p align="center"><img src="image/docker-ps.png" alt="Same docker ps output at higher resolution: the PORTS column 0.0.0.0:8080->80/tcp is fully legible. This is what you read when troubleshooting why a request is reaching the wrong port."></p>
-
 <details>
 <summary>Expected output</summary>
 
@@ -492,8 +486,6 @@ docker logs my-nginx
 ```
 
 <p align="center"><img src="image/docker-logs.png" alt="Log lines: Configuration complete; ready for start up, then worker process notices, then access log entries showing GET requests from 172.17.0.1 with status 200. This is NGINX's stdout."></p>
-
-<p align="center"><img src="image/docker-logs.png" alt="A zoomed-in view of just the access log portion: client IP, timestamp, HTTP method and path, status code, response size, referrer, and user agent. This is the format you parse when investigating who hit the server, when, and with what result."></p>
 
 #### Understanding
 
@@ -530,11 +522,7 @@ Step 1: Run `docker logs my-nginx` and note the current number of access log ent
 
 Step 2: In another terminal tab, run `curl http://localhost:8080` three times.
 
-<p align="center"><img src="image/docker-logs.png" alt="Second snapshot of docker logs my-nginx. The access log section has grown: more GET / entries and matching 200 responses are visible."></p>
-
 Step 3: Run `docker logs my-nginx` again.
-
-<p align="center"><img src="image/docker-logs.png" alt="Third snapshot of docker logs my-nginx. The access log section is now noticeably longer than in the first frame. This is the visible evidence that the buffer accumulated every request."></p>
 
 What changed?
 
