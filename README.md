@@ -162,7 +162,7 @@ docker/
 Docker images are the immutable templates from which containers are created. Before you can run any container, you must have its image available locally. Docker Hub is the default public registry that hosts official, maintained images for common software, including NGINX.
 
 <p align="center">
-  <img src="image/docker_pull.png" alt="Architecture diagram: Docker Hub on the left, a local image in the middle, a running container on the right, with a port bridge from host 8080 to container 80 and a host directory mounted into the container web root.">
+  <img src="image/how_it_work.png" alt="Architecture diagram: Docker Hub on the left, a local image in the middle, a running container on the right, with a port bridge from host 8080 to container 80 and a host directory mounted into the container web root.">
 </p>
 
 #### What You Will Build
@@ -624,7 +624,7 @@ docker start my-nginx
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/docker-stop.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
+<p align="center"><img src="image/docker_start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
 
 <details>
 <summary>Expected output</summary>
@@ -660,7 +660,7 @@ nginx        latest    ec4ed8b5299e   2 weeks ago   241MB
 ```
 </details>
 
-#### Experiment: Start a Removed Container
+#### Experiment: Start and Removed Container
 
 Run:
 
