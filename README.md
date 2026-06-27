@@ -103,6 +103,8 @@ You are the engineer responsible for delivering a working, reproducible web serv
 
 A running NGINX container that serves a custom HTML page, mapped to host port 8080, with its content directory mounted from the project workspace. The configuration must work identically when re-run on any Docker-enabled machine.
 
+<p align="center"><img src="image/into_data_dir.png" alt="Project layout: the nginx-lab directory holds the HTML content that will be mounted into the container."></p>
+
 ---
 
 ## 6. Environment Setup
@@ -283,8 +285,6 @@ Step 2: Verify the file contents.
 ```bash
 cat nginx-lab/html/index.html
 ```
-
-<p align="center"><img src="image/into_data_dir.png" alt="Terminal shows echo creating index.html, then cat printing its single h1 line. This file is the content the container will serve."></p>
 
 Step 3: Run the NGINX container with a volume mount and port mapping. Complete the blanks below.
 
@@ -626,8 +626,6 @@ curl http://localhost:8080
 
 <p align="center"><img src="image/docker_start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
 
-<p align="center"><img src="image/docker_unpause.png" alt="curl http://localhost:8080 returns the same h1 line as before. The mounted volume was never unmounted, so the original content survives the stop-and-restart cycle."></p>
-
 <details>
 <summary>Expected output</summary>
 
@@ -670,7 +668,7 @@ Run:
 docker start my-nginx
 ```
 
-<p align="center"><img src="image/version_dockerinfo.png" alt="Docker prints Error response from daemon: No such container: my-nginx. The record is gone, so start cannot find it. You must use docker run to create a new container from the image."></p>
+<p align="center"><img src="image/docker stop and remove.png" alt="Docker prints Error response from daemon: No such container: my-nginx. The record is gone, so start cannot find it. You must use docker run to create a new container from the image."></p>
 
 What error do you see, and what does it tell you?
 
