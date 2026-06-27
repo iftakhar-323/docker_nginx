@@ -1,43 +1,8 @@
 # Lab Manual: Running NGINX in Docker
 
-> A concise, image-driven lab for **Puku CLI**. Pull the NGINX image, serve custom HTML, inspect a running container, and manage its lifecycle — all from one Puku workspace.
+> A concise, image-driven Docker + NGINX lab. Pull the NGINX image, serve custom HTML, inspect a running container, and manage its lifecycle from the command line.
 
----
-
-## Built for Puku CLI
-
-This lab is designed to be opened and finished inside **Puku CLI** — an AI-native, terminal-first code editor. Puku combines a file explorer, a syntax-aware editor, an integrated terminal, and an AI coding assistant in a single window. You run Docker, edit HTML, and read this manual without ever leaving the editor.
-
-### Why Puku CLI is a good fit for this lab
-
-Docker work is split across three places: file edits, terminal commands, and reference material. Most editors force you to switch between them. Puku puts all three in one workspace, so the friction that causes typos and skipped steps disappears.
-
-| Lab step | Puku panel you use | What you gain |
-|---|---|---|
-| Edit `nginx-lab/html/index.html` | Editor | Syntax highlighting for HTML; saves reflect into the running container instantly. |
-| Run `docker pull`, `docker run`, `docker ps`, `docker logs` | Integrated Terminal | Same `cwd`, same env vars across commands; no opening new shells. |
-| Read this lab manual while working | Editor preview of `README.md` | The reference and the terminal are side-by-side, no alt-tab. |
-| Inspect `image/` screenshots | File Explorer | One click to open any screenshot referenced in the steps below. |
-| Debug a `docker run` error | AI Assistant | Ask Puku to explain the error message in plain language. |
-| Commit and push to GitHub | Integrated Terminal | Puku preserves the git workflow — no context switching to GitHub Desktop. |
-
-### One-time setup in Puku CLI
-
-1. Open Puku CLI.
-2. Click **File → Open Folder** and select your `docker/` project directory. Puku treats that folder as the workspace root, so every path in this lab is relative to it.
-3. The file explorer on the left now shows `image/`, `nginx-lab/`, and `README.md`.
-4. Open the integrated terminal from the **Terminal** menu. The prompt is already inside `docker/`.
-5. Open `README.md` in the editor and toggle the **Markdown preview** — you can read this lab rendered while you work.
-6. Puku creates a local `.puku/` folder for its private state. This folder is already in `.gitignore`, so it never reaches GitHub.
-
-### Benefits students get from doing this lab in Puku
-
-- **One window, one workflow.** File edits, terminal commands, screenshots, and reference material live in the same workspace.
-- **No lost terminals.** The Puku terminal keeps its working directory and environment variables, so a second `docker run` from a new tab still finds `./nginx-lab/html`.
-- **Live content updates.** Save `index.html` in Puku; the running NGINX container serves the new file on the next request — no rebuild, no restart.
-- **Reproducible environment.** Puku stores workspace settings in the folder, so anyone who clones this repo and opens it in Puku sees the same layout.
-- **AI on call.** If a command fails, paste the error into Puku's AI assistant and ask for an explanation. Treat the answer as a hint, not as a substitute for reading the manual.
-- **Git built in.** Commit, push, and view diffs without leaving Puku — the GitHub remote `docker_nginx` is already configured.
+This lab is designed to be completed inside **Puku CLI** because Puku keeps the editor, integrated terminal, screenshots, and this manual in one workspace. Open the `docker/` folder in Puku, run every command below in its integrated terminal, and read this file in the Markdown preview while you work.
 
 ---
 
@@ -103,7 +68,20 @@ By the end of this lab, you will be able to:
 
 ### Recommended Editor
 
-A code editor such as VS Code or Puku CLI is recommended for managing files and an integrated terminal.
+A code editor with an integrated terminal is recommended. This lab assumes **Puku CLI**, which places the editor, terminal, screenshots, and this manual in one window.
+
+#### Puku CLI quick reference
+
+| Action in the lab | Where to do it in Puku |
+|---|---|
+| Edit `nginx-lab/html/index.html` | Editor (saves are picked up by the running container). |
+| Run `docker pull`, `docker run`, `docker ps`, `docker logs` | Integrated Terminal (same `cwd`, same env vars). |
+| Read this manual while working | Markdown preview of `README.md`, side-by-side with the terminal. |
+| Open a referenced screenshot | File Explorer — `image/`. |
+| Debug a failed `docker run` | AI Assistant — paste the error and ask for an explanation. |
+| Commit and push to GitHub | Integrated Terminal — git is already wired to `docker_nginx`. |
+
+The `.puku/` folder is created by Puku for its private state and is already in `.gitignore`, so it never reaches GitHub.
 
 ---
 
