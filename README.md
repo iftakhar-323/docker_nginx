@@ -321,7 +321,7 @@ docker run --name my-nginx \
 On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
 </details>
 
-<p align="center"><img src="image/docker-run.png" alt="Docker prints a long 64-char container ID and returns to the prompt. That ID means the container is now running detached in the background."></p>
+<p align="center"><img src="image/docker-run-host.png" alt="Docker prints a long 64-char container ID and returns to the prompt. That ID means the container is now running detached in the background."></p>
 
 #### Understanding
 
@@ -353,7 +353,7 @@ The request reaches port 8080 on the host. The host forwards it to port 80 insid
 
 The same result appears when visiting `http://localhost:8080` in a browser:
 
-<p align="center"><img src="image/docker-run-host.png" alt="Browser at localhost:8080 displays the heading on a white page. Same content as curl, just rendered."></p>
+<p align="center"><img src="image/docker_start.png" alt="Browser at localhost:8080 displays the heading on a white page. Same content as curl, just rendered."></p>
 </details>
 
 #### Experiment: Remove the Port Mapping
@@ -624,7 +624,7 @@ docker start my-nginx
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/docker_start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
+<p align="center"><img src="image/docker-stop.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
 
 <details>
 <summary>Expected output</summary>
