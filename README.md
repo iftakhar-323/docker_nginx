@@ -17,14 +17,6 @@
 
 ---
 
-<p align="center">
-  <img src="image/container-lifecycle.png" alt="Container lifecycle overview" width="900">
-</p>
-
-<p align="center"><sub><b>Figure 1.</b> The full container lifecycle you will master in this lab — from image pull to a running, stoppable, removable NGINX container.</sub></p>
-
----
-
 ## Table of Contents
 
 | # | Section | # | Section |
@@ -88,7 +80,7 @@ A running NGINX container serving a custom HTML page at `http://localhost:8080`,
   <img src="image/docker-pull-nginx.png" alt="Pull flow: Docker Hub to local image to running container" width="800">
 </p>
 
-<p align="center"><sub><b>Figure 2.</b> The dataflow from registry → image → container → host port. Every chapter in this lab touches one of these arrows.</sub></p>
+<p align="center"><sub><b>Figure 1.</b> The dataflow from registry → image → container → host port. Every chapter in this lab touches one of these arrows.</sub></p>
 
 ---
 
@@ -211,10 +203,6 @@ docker/
 
 Images are immutable templates; containers are running instances created from images. Before you can run anything, the image must be on your local machine.
 
-<p align="center">
-  <img src="image/docker-pull-nginx.png" alt="Pull flow: Docker Hub to local image to running container" width="800">
-</p>
-
 #### What You Will Build
 
 The official `nginx` image, downloaded from Docker Hub and verified locally.
@@ -291,7 +279,7 @@ A container started from the default `nginx` image serves only its built-in welc
   <img src="image/volume-mount.png" alt="Volume mount: host directory mapped into container web root" width="700">
 </p>
 
-<p align="center"><sub><b>Figure 3.</b> The two contracts that make a container reachable and useful: port mapping (left) and volume mount (right).</sub></p>
+<p align="center"><sub><b>Figure 2.</b> The two contracts that make a container reachable and useful: port mapping (left) and volume mount (right).</sub></p>
 
 #### What You Will Build
 
@@ -430,7 +418,7 @@ A container running in detached mode produces no terminal output. To verify its 
   <img src="image/status-vs-health.png" alt="Container status (Up / Exited) versus container health (healthy / unhealthy)" width="800">
 </p>
 
-<p align="center"><sub><b>Figure 4.</b> Status reports the process state; health reports the service state. Both must be checked for production.</sub></p>
+<p align="center"><sub><b>Figure 3.</b> Status reports the process state; health reports the service state. Both must be checked for production.</sub></p>
 
 #### What You Will Build
 
@@ -520,6 +508,8 @@ Containers are ephemeral by design. A deployment workflow involves starting, sto
 <p align="center">
   <img src="image/container-lifecycle.png" alt="Container lifecycle: created, running, stopped, paused, deleted" width="800">
 </p>
+
+<p align="center"><sub><b>Figure 4.</b> The container state machine. Each transition in this diagram is a Docker CLI command you will execute in this chapter.</sub></p>
 
 #### What You Will Build
 
