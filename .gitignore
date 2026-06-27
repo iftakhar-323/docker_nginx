@@ -1,0 +1,17 @@
+# Puku Editor metadata
+.puku/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor temp
+*.swp
+*.swo
+.vscode/
+
+# Docker
+docker-lab.sock
+
+# Logs
+*.log
