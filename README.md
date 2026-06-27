@@ -68,6 +68,18 @@ By the end of this lab, you will be able to:
 
 A code editor such as VS Code or Puku CLI is recommended for managing files and an integrated terminal.
 
+### Recommended Environment: Puku CLI
+
+This lab is authored and run inside **Puku CLI**, an AI-native terminal-first code editor. Puku bundles a file explorer, syntax-aware editor, integrated terminal, and an AI coding assistant into a single workspace.
+
+Practical workflow inside Puku:
+
+- Open the project folder `docker/` as the workspace root so all commands assume the correct base path.
+- Use the integrated terminal for every `docker` command in this lab. Puku preserves the working directory and environment variables across runs.
+- Use the file explorer to inspect `image/` (lab screenshots) and to edit `nginx-lab/html/index.html` and any challenge files.
+- Use the editor's preview feature to view rendered Markdown of this `README.md` while you work.
+- Local state such as `.puku/` is editor-private and is excluded from version control via `.gitignore`.
+
 ---
 
 ## 5. Prologue
