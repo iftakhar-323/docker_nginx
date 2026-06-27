@@ -1,170 +1,163 @@
-# 🐳 Running an NGINX Web Server in a Docker Container
+# Lab Manual: Running an NGINX Web Server in a Docker Container
 
-> A hands-on lab that teaches you how to deploy NGINX inside Docker — built and documented using **Puku CLI**.
-
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![NGINX](https://img.shields.io/badge/NGINX-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
-[![Puku](https://img.shields.io/badge/Editor-Puku%20CLI-7B61FF?style=for-the-badge)](https://puku.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
+> A structured, hands-on lab for beginners and intermediate learners who want to deploy a reproducible NGINX web server using Docker.
 
 ---
 
-## 📑 Table of Contents
+## 1. Title
 
-1. [Introduction](#-introduction)
-2. [Learning Objectives](#-learning-objectives)
-3. [About Puku CLI](#-about-puku-cli)
-4. [Lab Workflow in Puku](#-lab-workflow-in-puku)
-5. [Prologue: The Challenge](#-prologue-the-challenge)
-6. [Environment Setup](#-environment-setup)
-7. [Chapter 1: Images and the Docker Hub Registry](#-chapter-1-images-and-the-docker-hub-registry)
-8. [Chapter 2: Serving Content with Volume Mounts](#-chapter-2-serving-content-with-volume-mounts)
-9. [Chapter 3: Inspecting a Running Container](#-chapter-3-inspecting-a-running-container)
-10. [Chapter 4: Container Lifecycle Management](#-chapter-4-container-lifecycle-management)
-11. [Epilogue: The Complete System](#-epilogue-the-complete-system)
-12. [The Principles](#-the-principles)
-13. [Troubleshooting](#-troubleshooting)
-14. [Next Steps](#-next-steps)
-15. [Additional Resources](#-additional-resources)
+**Containerized Web Serving with NGINX and Docker**
 
 ---
 
-## 🚀 Introduction
+## 2. Introduction
 
-This lab teaches you how to deploy an **NGINX web server inside a Docker container**. You will pull an official image from Docker Hub, mount a custom HTML directory into the container, manage the container lifecycle, and verify a running web service.
+### What This Lab Is About
 
-By the end, you will have a **reproducible web server environment** that runs identically anywhere Docker is available — locally, on a CI runner, or in production.
+This lab teaches how to deploy an NGINX web server inside a Docker container. It covers pulling official images from Docker Hub, mounting a custom HTML directory, mapping host ports, managing the container lifecycle, and verifying a running web service from the command line.
+
+### Why This Topic Is Important
+
+A common cause of production failures is environment drift — software that works on a developer's machine but fails on a shared server because of missing dependencies, version mismatches, or port conflicts. Docker eliminates this problem by packaging the application, its runtime, and its configuration into a single immutable artifact. Learning this workflow is a prerequisite for any modern DevOps, cloud, or backend engineering role.
+
+### Where It Is Used in Industry
+
+- Internal documentation portals and developer dashboards.
+- Reverse proxies and load balancers in microservice architectures.
+- Static site hosting in CI/CD pipelines.
+- Local development environments that mirror production.
+
+### What You Will Build
+
+By the end of this lab, you will have a running NGINX container that serves a custom HTML page on `http://localhost:8080`, with the content directory mounted from your project workspace. The same workflow will reproduce identically on any machine where Docker is installed.
 
 ---
 
-## 🎯 Learning Objectives
+## 3. Learning Objectives
 
 By the end of this lab, you will be able to:
 
-- ✅ Pull a Docker image from Docker Hub and verify it locally.
-- ✅ Create a custom HTML page and serve it from a running Docker container.
-- ✅ Configure port mapping and volume mounts in a `docker run` command.
-- ✅ Analyze container status, logs, and networking using Docker CLI commands.
-- ✅ Debug container state when the service is unreachable.
-- ✅ Optimize the mount configuration by selecting read-only access where appropriate.
-- ✅ Evaluate the difference between container status and container health.
+- Create a reproducible containerized web server using an official Docker image.
+- Configure port mapping between the host and a running container.
+- Mount a host directory into a container as a read-only volume.
+- Analyze container state using status, logs, and inspection commands.
+- Debug a container that fails to respond on the expected port.
+- Manage the full container lifecycle: run, stop, start, and remove.
+- Distinguish container status from container health.
 
 ---
 
-## 🛠️ About Puku CLI
+## 4. Prerequisites
 
-**Puku CLI** is the editor used to author this lab. It is an AI-augmented coding workspace built around three panels:
+### Required Knowledge
 
-| Panel | Purpose in this lab |
-|---|---|
-| **Explorer** (left) | Browse `image/`, `md/`, and `nginx-lab/` files. |
-| **Editor** (center) | Edit `README.md`, `nginx-lab/html/index.html`, and notes. |
-| **Terminal** (bottom) | Run all `docker` commands directly inside Puku — no external shell needed. |
+- Basic terminal usage (running commands, navigating directories).
+- Fundamental understanding of HTTP requests and web servers.
+- Familiarity with file paths and directory structures.
 
-### Why Puku for a Docker lab?
+### Required Software
 
-- 🖥️ **Integrated terminal** — run `docker pull`, `docker run`, `docker logs` without leaving the editor.
-- 🌐 **Simple Browser** — preview `http://localhost:8080` in a side panel.
-- 🤖 **AI assistant** — ask questions about any command or error inline.
-- 📂 **File-tree awareness** — the AI can read your `nginx-lab/` structure and the lab `image/` folder together.
+| Software | Minimum Version | Purpose |
+|---|---|---|
+| Docker Engine | 24.x | Container runtime. |
+| Docker CLI | Bundled with Engine | Command-line interface. |
+| curl | 7.x | HTTP testing from the terminal. |
+| Operating system | Linux, macOS, or Windows with WSL2 | Host platform. |
 
----
+### Recommended Editor
 
-## 🧭 Lab Workflow in Puku
-
-> 💡 **Tip:** Open Puku's terminal panel (`Ctrl+``) before starting. All commands in this lab run there.
-
-```
-┌──────────────────────────────────────────────────────────┐
-│  Puku Editor                                             │
-│  ┌──────────┬───────────────────────────┬─────────────┐  │
-│  │ Explorer │   Editor (README.md)      │  Simple     │  │
-│  │  📁 image│   Chapter 2 ▶ Run NGINX   │  Browser    │  │
-│  │  📁 md   │                           │  :8080      │  │
-│  │  📁 ngin │                           │             │  │
-│  │  x-lab/  │                           │             │  │
-│  ├──────────┴───────────────────────────┴─────────────┤  │
-│  │  Terminal: $ docker run --name my-nginx ...         │  │
-│  └─────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────┘
-```
-
-**Recommended workflow for each chapter:**
-
-1. Read the chapter in the editor pane.
-2. Run the commands in Puku's integrated terminal.
-3. Compare the output against the **Expected output** block.
-4. Open `http://localhost:8080` in **Simple Browser** when verifying the web server.
-5. Tick the chapter **Checkpoint** when done.
+A code editor such as VS Code or Puku CLI is recommended for managing files and an integrated terminal.
 
 ---
 
-## 📖 Prologue: The Challenge
+## 5. Prologue
 
-You join a team that maintains a set of internal documentation portals. A colleague built one locally and it works on their machine. When the service moves to a shared server, nothing works: missing dependencies, wrong versions, port conflicts.
+### Scenario
 
-The infrastructure lead assigns you a task:
+You have joined a platform team that maintains a set of internal documentation portals. A colleague built one of these portals locally and it works on their laptop. When the service is deployed to a shared staging server, the application fails: missing system libraries, wrong NGINX version, and a port already bound by another service.
 
-> **Containerize the web server so the environment is reproducible anywhere. Use NGINX in Docker.**
+The infrastructure lead assigns you the following task:
 
-Your deliverable: a running NGINX container that serves a custom HTML page, mapped to a host port, with its content directory mounted from the project workspace.
+> Containerize the web server so the environment is reproducible anywhere. Use NGINX in Docker.
+
+### Your Role
+
+You are the engineer responsible for delivering a working, reproducible web server. You must select an official base image, define how content is mounted, expose the service on a stable host port, and document the workflow so the rest of the team can repeat it.
+
+### Expected Outcome
+
+A running NGINX container that serves a custom HTML page, mapped to host port 8080, with its content directory mounted from the project workspace. The configuration must work identically when re-run on any Docker-enabled machine.
 
 ---
 
-## 🔧 Environment Setup
+## 6. Environment Setup
 
-**Step 1.** Open Puku's terminal panel (`Ctrl+`` or *View → Terminal*).
+### Step 1: Verify Docker Installation
 
-**Step 2.** Verify Docker is available:
+Open a terminal session and run:
 
 ```bash
 docker --version
 ```
 
-<details>
-<summary>Expected output</summary>
+Expected output:
 
 ```text
-Docker version 24.x.x, build ...
+Docker version 24.x.x, build xxxxxxx
 ```
 
-</details>
+If Docker is not installed, follow the official installation guide for your platform: <https://docs.docker.com/engine/install/>.
 
-**Step 3.** Verify the project layout in the Explorer pane:
+### Step 2: Verify curl
 
-```
-docker/
-├── .puku/                 # Puku editor metadata (gitignored)
-├── image/                 # Lab screenshots
-├── md/                    # Lab notes / drafts
-├── nginx-lab/
-│   └── html/
-│       └── index.html     # Will be created in Chapter 2
-└── README.md              # ← you are here
+```bash
+curl --version
 ```
 
-**Step 4.** Create the project directory if it does not exist:
+Expected output begins with `curl 7.x.x`.
+
+### Step 3: Create the Project Directory Structure
 
 ```bash
 mkdir -p nginx-lab/html
 ```
 
+This creates the workspace that will later hold the custom HTML content served by NGINX.
+
+### Step 4: Confirm the Project Layout
+
+```
+docker/
+├── image/                 # Lab screenshots
+├── nginx-lab/
+│   └── html/              # Content directory (mount target)
+└── README.md              # This lab manual
+```
+
 ---
 
-## 📦 Chapter 1: Images and the Docker Hub Registry
+## 7. Chapters
 
-Docker does not require you to build every image from scratch. Docker Hub provides official, maintained images for common software. Before running a container, you pull its image.
+---
 
-### 1.1 What You Will Build
+### Chapter 1: Images and the Docker Hub Registry
 
-You will pull the official NGINX image and verify it is available on your local machine.
+#### Overview
 
-### 1.2 Think First
+Docker images are the immutable templates from which containers are created. Before you can run any container, you must have its image available locally. Docker Hub is the default public registry that hosts official, maintained images for common software, including NGINX.
+
+This chapter teaches the difference between an image and a container, and how to download and verify an official image.
+
+#### What You Will Build
+
+You will download the official `nginx` image from Docker Hub and confirm it is available on your local machine.
+
+#### Think First
 
 Consider the following two statements:
 
-> *"The NGINX image is running."*
-> *"The NGINX container is running."*
+> Statement A: "The NGINX image is running."
+> Statement B: "The NGINX container is running."
 
 Which statement is technically accurate, and what is the difference between an image and a container?
 
@@ -175,13 +168,13 @@ Only a container can run. An image is a read-only template: a snapshot of a file
 
 One image can produce many containers simultaneously, each isolated from the others.
 
-The accurate statement is: **"The NGINX container is running."**
+The accurate statement is **Statement B: "The NGINX container is running."**
 
 </details>
 
-### 1.3 Pull the NGINX Image
+#### Implementation
 
-Run the following command in Puku's terminal:
+Run the following command in your terminal:
 
 ```bash
 docker pull nginx
@@ -193,29 +186,14 @@ Docker downloads each layer of the image in parallel and confirms each layer as 
   <img src="image/02-docker-pull-complete.png" alt="docker pull nginx terminal output" width="900">
 </p>
 
-<details>
-<summary>Expected output</summary>
+#### Understanding
 
-```text
-Using default tag: latest
-latest: Pulling from library/nginx
-1645c1e06f46: Pull complete
-1b30016634d5: Pull complete
-e95a6c7ea7d4: Pull complete
-acf093e7a04f: Pull complete
-cd9307c9ecd8: Pull complete
-fcb6fd84b2a0: Pull complete
-df68ee7e7a80: Pull complete
-1cf7d051b485: Download complete
-e2c07e54e55a: Download complete
-Digest: sha256:ec4ed8b5299e5e90694af7750eb6dffd2627317d30544d056b0371f8082f7bce
-Status: Downloaded newer image for nginx:latest
-docker.io/library/nginx:latest
-```
+The `docker pull` command performs two actions:
 
-</details>
+1. It contacts Docker Hub and resolves the image name `nginx` to a specific image digest.
+2. It downloads only the layers that are not already present on the local machine, then assembles them into a single image.
 
-### 1.4 Verify the Download
+#### Test and Verify
 
 Confirm the image is available locally:
 
@@ -241,25 +219,27 @@ nginx        latest    ec4ed8b5299e   2 weeks ago   241MB
 
 </details>
 
-### 1.5 Checkpoint
+#### Checkpoint
 
 - [ ] `docker pull nginx` completed without errors.
 - [ ] `docker images` lists `nginx` with the `latest` tag.
-- [ ] You can explain the difference between an image and a container.
+- [ ] You can explain the difference between an image and a container in one sentence.
 
 ---
 
-## 🌐 Chapter 2: Serving Content with Volume Mounts
+### Chapter 2: Serving Content with Volume Mounts
 
-An NGINX container started without configuration serves only its default welcome page. To serve your own content, you mount a local directory into the container's web root. Any HTML file placed in that directory becomes immediately available through the running server.
+#### Overview
 
-### 2.1 What You Will Build
+A container started from the default `nginx` image serves only its built-in welcome page. To serve custom content, you must mount a host directory into the container's web root. This chapter introduces volume mounts, port mapping, and detached execution — the three flags that make a container useful in practice.
 
-You will create a custom HTML file, run the NGINX container with a volume mount and port mapping, and verify the server returns your custom content.
+#### What You Will Build
 
-### 2.2 Think First
+You will create a custom HTML file, run the NGINX container with a volume mount and port mapping, and verify that the server returns your custom content on `http://localhost:8080`.
 
-The NGINX server inside the container listens on port 80. Your host machine cannot directly access port 80 inside the container.
+#### Think First
+
+The NGINX server inside the container listens on port 80. Your host machine cannot directly reach port 80 inside a running container.
 
 What does the `-p 8080:80` flag accomplish, and which number refers to the host?
 
@@ -278,11 +258,15 @@ Without this mapping, the container's network is isolated and unreachable from o
 
 </details>
 
-### 2.3 Create the HTML Page
+#### Implementation
+
+Step 1: Create the HTML page.
 
 ```bash
 echo '<h1>Hello from NGINX running in Docker!</h1>' > nginx-lab/html/index.html
 ```
+
+Step 2: Verify the file contents.
 
 ```bash
 cat nginx-lab/html/index.html
@@ -292,18 +276,7 @@ cat nginx-lab/html/index.html
   <img src="image/05-create-html-file.png" alt="Creating index.html with echo and verifying with cat" width="900">
 </p>
 
-<details>
-<summary>Expected output</summary>
-
-```html
-<h1>Hello from NGINX running in Docker!</h1>
-```
-
-</details>
-
-### 2.4 Run the NGINX Container
-
-Complete the following `docker run` command by filling in the blanks:
+Step 3: Run the NGINX container with a volume mount and port mapping. Complete the blanks below.
 
 ```bash
 docker run --name my-nginx \
@@ -314,9 +287,9 @@ docker run --name my-nginx \
 
 Hints:
 
-- **Blank 1:** two-letter abbreviation for "read-only".
-- **Blank 2:** use port 8080 (a common choice).
-- **Blank 3:** single-letter flag.
+- Blank 1: two-letter abbreviation for "read-only".
+- Blank 2: use port 8080 (a common choice).
+- Blank 3: single-letter flag.
 
 <details>
 <summary>Solution</summary>
@@ -347,16 +320,16 @@ On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
   <img src="image/06-docker-run-command.png" alt="docker run command terminal output" width="900">
 </p>
 
-<details>
-<summary>Expected output (container ID)</summary>
+#### Understanding
 
-```text
-8106ee13f2aab334720b134d3b913e9b0a42f1712b13d8fcbeba0b3150a0066bb
-```
+Each flag in the `docker run` command has a specific contract with the host system:
 
-</details>
+- `--name` makes the container addressable by a stable string instead of a random ID.
+- `-v` binds a host directory to a directory inside the container. The `:ro` suffix enforces read-only access from inside the container, which prevents the web server from modifying your source files.
+- `-p` declares the network bridge between host and container. The format is always `host:container`.
+- `-d` detaches the container from the terminal so it runs in the background.
 
-### 2.5 Test and Verify
+#### Test and Verify
 
 Predict: what will the following command return?
 
@@ -377,7 +350,7 @@ curl http://localhost:8080
 
 The request reaches port 8080 on the host. The host forwards it to port 80 inside the container. NGINX reads `index.html` from the mounted volume and returns its contents.
 
-The same result appears when visiting `http://localhost:8080` in a browser. In Puku, open **Simple Browser** (`Ctrl+Shift+P → Simple Browser: Show`) and enter the URL:
+The same result appears when visiting `http://localhost:8080` in a browser:
 
 <p align="center">
   <img src="image/08-browser-test-result.png" alt="Browser showing the served HTML page at localhost:8080" width="900">
@@ -385,20 +358,26 @@ The same result appears when visiting `http://localhost:8080` in a browser. In P
 
 </details>
 
-### 2.6 Experiment: Remove the Port Mapping
+#### Experiment: Remove the Port Mapping
 
-Stop and remove the container, then start a new one without `-p 8080:80`:
+This experiment intentionally breaks the configuration to demonstrate why explicit port mapping is required.
+
+Step 1: Stop and remove the current container.
 
 ```bash
 docker stop my-nginx
 docker rm my-nginx
+```
 
+Step 2: Start a new container without `-p 8080:80`.
+
+```bash
 docker run --name my-nginx \
   -v $(pwd)/nginx-lab/html:/usr/share/nginx/html:ro \
   -d nginx
 ```
 
-Now run:
+Step 3: Attempt the same request.
 
 ```bash
 curl http://localhost:8080
@@ -415,8 +394,6 @@ What happens, and why?
 
 The request fails with `Connection refused`. Without `-p`, the container's port 80 is not reachable from the host. The container's network namespace is isolated by default, so the host cannot reach it.
 
-This is a deliberate failure experiment: it demonstrates why explicit port mapping is required.
-
 Restore the correct setup before continuing:
 
 ```bash
@@ -426,9 +403,9 @@ docker rm my-nginx
 
 </details>
 
-### 2.7 Matching Exercise
+#### Matching Exercise
 
-Match each flag to its purpose:
+Match each flag to its purpose.
 
 | Flag | Purpose |
 |---|---|
@@ -440,14 +417,14 @@ Match each flag to its purpose:
 <details>
 <summary>Answer</summary>
 
-- `--name my-nginx` → **D**
-- `-v ...:ro` → **C**
-- `-p 8080:80` → **B**
-- `-d` → **A**
+- `--name my-nginx` → D
+- `-v ...:ro` → C
+- `-p 8080:80` → B
+- `-d` → A
 
 </details>
 
-### 2.8 Checkpoint
+#### Checkpoint
 
 - [ ] Container started without errors and returned a container ID.
 - [ ] `curl http://localhost:8080` returns your custom HTML.
@@ -456,19 +433,25 @@ Match each flag to its purpose:
 
 ---
 
-## 🔍 Chapter 3: Inspecting a Running Container
+### Chapter 3: Inspecting a Running Container
 
-A container running in detached mode produces no output in the terminal. Docker provides commands to inspect its state, examine its logs, and confirm network configuration without interrupting the service.
+#### Overview
 
-### 3.1 Think First
+A container running in detached mode produces no output in the terminal. To verify its state and diagnose issues without restarting it, Docker provides commands to inspect its status, examine its logs, and confirm its network configuration. This chapter introduces the observability tools that separate ad-hoc container use from production-grade container management.
+
+#### What You Will Build
+
+You will inspect the running `my-nginx` container, read its access logs, and observe how log entries appear in real time as requests arrive.
+
+#### Think First
 
 A teammate tells you a container shows status `Up 2 minutes (unhealthy)`. What does this indicate, and how does it differ from `Up 2 minutes`?
 
 <details>
 <summary>Answer</summary>
 
-- `Up 2 minutes` means the container process is running.
-- `Up 2 minutes (unhealthy)` means the process is running, but a configured health check is failing. The process has not crashed, but the service inside it is not passing its own readiness tests.
+`Up 2 minutes` means the container process is running.
+`Up 2 minutes (unhealthy)` means the process is running, but a configured health check is failing. The process has not crashed, but the service inside it is not passing its own readiness tests.
 
 In production, a load balancer should route traffic only to healthy containers.
 
@@ -478,7 +461,9 @@ In production, a load balancer should route traffic only to healthy containers.
 
 </details>
 
-### 3.2 Check Running Containers
+#### Implementation
+
+Step 1: List running containers.
 
 ```bash
 docker ps
@@ -506,17 +491,29 @@ Verify in the output:
 
 </details>
 
-### 3.3 View Container Logs
+Step 2: View container logs.
 
 ```bash
 docker logs my-nginx
 ```
 
-Predict: what type of information will appear in NGINX logs?
-
 <p align="center">
   <img src="image/12-docker-logs-output.png" alt="docker logs my-nginx terminal output" width="900">
 </p>
+
+#### Understanding
+
+`docker ps` answers the question *"Is the container process alive?"* by reporting its runtime state and bound ports.
+
+`docker logs` answers the question *"What is the container actually doing?"* by streaming the contents of its stdout and stderr buffers. NGINX writes three categories of information to its logs:
+
+1. Entrypoint configuration messages during startup.
+2. Worker process notifications from the NGINX master.
+3. Access log entries for every HTTP request, and error log entries for failed requests.
+
+#### Test and Verify
+
+Predict: what type of information will appear in NGINX logs?
 
 <details>
 <summary>Expected output (abbreviated)</summary>
@@ -528,15 +525,17 @@ Predict: what type of information will appear in NGINX logs?
 172.17.0.1 - - [25/Jun/2026:09:01:27 +0000] "GET /favicon.ico HTTP/1.1" 404 555 ...
 ```
 
-The logs show three phases: entrypoint configuration, worker process startup, and access or error log entries. A `404` entry for `/favicon.ico` is expected because browsers request this file automatically.
+A `404` entry for `/favicon.ico` is expected because browsers request this file automatically.
 
 </details>
 
-### 3.4 Experiment: Observing Live Log Updates
+#### Experiment: Observing Live Log Updates
 
-1. Run `docker logs my-nginx` and note the current number of access log entries.
-2. In another terminal tab, run `curl http://localhost:8080` three times.
-3. Run `docker logs my-nginx` again.
+Step 1: Run `docker logs my-nginx` and note the current number of access log entries.
+
+Step 2: In another terminal tab, run `curl http://localhost:8080` three times.
+
+Step 3: Run `docker logs my-nginx` again.
 
 What changed?
 
@@ -559,7 +558,7 @@ Three new access log entries appear, one per `curl` request. Each entry records 
 
 </details>
 
-### 3.5 Think First
+#### Think First
 
 In a production system, why would you monitor these logs rather than only checking that the container is `Up`?
 
@@ -572,7 +571,7 @@ A container can be `Up` while returning 500 errors on every request, rejecting a
 
 </details>
 
-### 3.6 Checkpoint
+#### Checkpoint
 
 - [ ] `docker ps` shows `my-nginx` with status `Up`.
 - [ ] `docker logs my-nginx` displays startup and access entries.
@@ -581,22 +580,28 @@ A container can be `Up` while returning 500 errors on every request, rejecting a
 
 ---
 
-## ♻️ Chapter 4: Container Lifecycle Management
+### Chapter 4: Container Lifecycle Management
 
-Containers are ephemeral by design. A deployment workflow involves starting, stopping, restarting, and eventually removing containers as application versions change. These operations leave the underlying image intact.
+#### Overview
 
-### 4.1 The Container Lifecycle
+Containers are ephemeral by design. A deployment workflow involves starting, stopping, restarting, and eventually removing containers as application versions change. These operations leave the underlying image intact, which means a removed container can be replaced by creating a new one from the same image.
+
+#### What You Will Build
+
+You will stop, restart, and remove the `my-nginx` container, observe the state transitions at each step, and confirm that the underlying image is unaffected.
+
+#### The Container Lifecycle
 
 | Note | Detail |
 |---|---|
-| `docker start` | Brings a Stopped container back to Running. Does not work after `docker rm`. |
+| `docker start` | Brings a stopped container back to running. Does not work after `docker rm`. |
 | Image safety | The `nginx:latest` image is never affected by `stop` or `rm`. It persists until you run `docker rmi`. |
 
 <p align="center">
   <img src="image/container-lifecycle.png" alt="Container lifecycle: created, running, stopped, paused, deleted states and transitions" width="700">
 </p>
 
-### 4.2 Think First
+#### Think First
 
 After `docker stop my-nginx`, can you run `docker start my-nginx`? After `docker rm my-nginx`, can you run `docker start my-nginx`?
 
@@ -611,7 +616,9 @@ The image (`nginx:latest`) is not affected by either operation.
 
 </details>
 
-### 4.3 Stop the Container
+#### Implementation
+
+Step 1: Stop the container.
 
 ```bash
 docker stop my-nginx
@@ -643,7 +650,7 @@ CONTAINER ID   IMAGE   COMMAND            CREATED         STATUS                
 
 </details>
 
-### 4.4 Restart the Container
+Step 2: Restart the container.
 
 ```bash
 docker start my-nginx
@@ -670,7 +677,7 @@ curl http://localhost:8080
 
 </details>
 
-### 4.5 Remove the Container
+Step 3: Stop and remove the container.
 
 ```bash
 docker stop my-nginx
@@ -681,7 +688,7 @@ docker rm my-nginx
   <img src="image/21-docker-stop-rm.png" alt="docker stop and docker rm terminal output" width="900">
 </p>
 
-Verify the image remains after container removal:
+Step 4: Verify the image remains.
 
 ```bash
 docker images
@@ -701,7 +708,7 @@ nginx        latest    ec4ed8b5299e   2 weeks ago   241MB
 
 </details>
 
-### 4.6 Experiment: Start a Removed Container
+#### Experiment: Start a Removed Container
 
 Run:
 
@@ -724,11 +731,11 @@ Error response from daemon: No such container: my-nginx
 
 The container record no longer exists. `docker start` cannot recreate it. To run NGINX again, you must use `docker run` to create a new container from the image.
 
-This is a deliberate failure experiment: it demonstrates that `docker rm` is irreversible and that images, not containers, are the durable artifact.
+This demonstrates that `docker rm` is irreversible and that images, not containers, are the durable artifact.
 
 </details>
 
-### 4.7 Checkpoint
+#### Checkpoint
 
 - [ ] `docker stop` halted the container and it no longer appears in `docker ps`.
 - [ ] `docker start` restarted it and the web page was accessible again.
@@ -737,82 +744,117 @@ This is a deliberate failure experiment: it demonstrates that `docker rm` is irr
 
 ---
 
-## 🏁 Epilogue: The Complete System
+## 8. Mini Challenge
 
-The container runs in isolation, serves custom content from a mounted directory, and exposes a predictable port to the host.
+### Objective
 
-### Endpoint Table
+Serve a multi-page HTML site from the same NGINX container without rebuilding it.
 
-| Endpoint | Component | Port |
-|---|---|---|
-| Host (external access) | `localhost:8080` | 8080 |
-| Container (internal listener) | NGINX | 80 |
-| Host content directory | `nginx-lab/html/` | n/a |
-| Container web root | `/usr/share/nginx/html` | n/a |
+### Requirements
 
-### Command Reference
+1. Create two additional files inside `nginx-lab/html/`:
+   - `about.html` containing a single `<h2>About</h2>` heading and one paragraph.
+   - `contact.html` containing a single `<h2>Contact</h2>` heading and one paragraph.
+2. Start a new NGINX container named `my-nginx-multi` with:
+   - The same volume mount as Chapter 2.
+   - A different host port: `8081`.
+3. Verify each page is reachable:
+   - `http://localhost:8081/` → `index.html`
+   - `http://localhost:8081/about.html` → `about.html`
+   - `http://localhost:8081/contact.html` → `contact.html`
+4. Stop and remove the container when finished.
 
-| Command | Purpose |
-|---|---|
-| `docker pull nginx` | Download image from Docker Hub. |
-| `docker images` | List available local images. |
-| `docker run --name my-nginx -v ... -p 8080:80 -d nginx` | Create and start container. |
-| `docker ps` | List running containers. |
-| `docker ps -a` | List all containers, including stopped. |
-| `docker logs my-nginx` | View container output. |
-| `docker stop my-nginx` | Halt the container. |
-| `docker start my-nginx` | Restart a stopped container. |
-| `docker rm my-nginx` | Delete the container record. |
+### Acceptance Criteria
 
-### End-to-End Verification
-
-Run the full sequence in one go inside Puku's terminal:
-
-```bash
-# 1. Pull image
-docker pull nginx
-
-# 2. Create content
-mkdir -p nginx-lab/html
-echo '<h1>Hello from NGINX running in Docker!</h1>' > nginx-lab/html/index.html
-
-# 3. Run container
-docker run --name my-nginx \
-  -v $(pwd)/nginx-lab/html:/usr/share/nginx/html:ro \
-  -p 8080:80 \
-  -d nginx
-
-# 4. Verify
-docker ps
-curl http://localhost:8080
-docker logs my-nginx
-
-# 5. Cleanup
-docker stop my-nginx
-docker rm my-nginx
-```
+- All three URLs return their respective HTML files without restarting the container after adding new files.
+- The volume mount must remain read-only.
+- No solution is provided. Refer to Chapter 2 for the relevant flags.
 
 ---
 
-## 🧭 The Principles
+## 9. Final Challenge
 
-- ✅ **Validate at system boundaries.** The host port, container port, and volume mount are explicit contracts between host and container.
-- ✅ **Fail fast on missing inputs.** A wrong path in `-v` or a duplicate container name produces immediate, clear errors.
-- ✅ **Design for observability.** Status, logs, and port mappings each reveal a different aspect of container behavior.
-- ✅ **Reuse resources.** One image produces many containers. Stop and remove containers freely; the image persists.
-- ✅ **Prefer explicit behavior over defaults.** Read-only mounts, named containers, and explicit port mappings remove ambiguity.
-- ✅ **Separate content from infrastructure.** The HTML directory lives on the host. Updates apply immediately, without rebuilding the container.
+### Objective
+
+Deploy a custom NGINX configuration that serves a 404 page for any unknown path, while preserving the existing content mount.
+
+### Background
+
+A production web server must respond predictably when users request paths that do not exist. Instead of returning a bare 404, the server should return a styled HTML page that maintains brand consistency.
+
+### Requirements
+
+1. Create a file `nginx-lab/custom-404.html` containing a friendly 404 message.
+2. Create a file `nginx-lab/nginx.conf` with:
+   - A `server` block listening on port 80.
+   - A `root /usr/share/nginx/html;` directive.
+   - An `error_page 404 /custom-404.html;` directive.
+   - A `location = /custom-404.html { internal; }` directive to prevent direct access to the 404 page.
+3. Run a new NGINX container that mounts both:
+   - `nginx-lab/html` to `/usr/share/nginx/html` (read-only).
+   - `nginx-lab/nginx.conf` to `/etc/nginx/conf.d/default.conf` (read-only).
+   - `nginx-lab/custom-404.html` to `/usr/share/nginx/html/custom-404.html` (read-only).
+   - Host port `8082` mapped to container port `80`.
+4. Verify the behavior:
+   - `curl http://localhost:8082/` returns `index.html`.
+   - `curl http://localhost:8082/missing` returns the contents of `custom-404.html` with HTTP status 404.
+
+### Acceptance Criteria
+
+- The custom 404 page is returned for any unknown path.
+- The configuration file is mounted from the host, not baked into the image.
+- All volume mounts are read-only.
 
 ---
 
-## 🩹 Troubleshooting
+## 10. Epilogue
+
+### Architecture Summary
+
+The final system consists of four components working together:
+
+1. The official `nginx:latest` image, sourced from Docker Hub.
+2. A host directory `nginx-lab/html/` that holds the website's source content.
+3. A Docker volume mount that exposes the host directory at `/usr/share/nginx/html` inside the container, in read-only mode.
+4. A Docker port mapping that forwards host port 8080 to container port 80.
+
+### Feature Summary
+
+- A running NGINX container named `my-nginx` serving custom HTML content.
+- Read-only content mount ensuring the web server cannot modify source files.
+- Stable host-to-container port mapping allowing external access.
+- Reproducible setup that runs identically on any Docker-enabled machine.
+
+### Workflow Summary
+
+1. Pull the official image: `docker pull nginx`.
+2. Prepare the content directory: `mkdir -p nginx-lab/html` and add HTML files.
+3. Run the container with volume mount, port mapping, and detached mode: `docker run --name my-nginx -v ... -p 8080:80 -d nginx`.
+4. Verify the service: `curl http://localhost:8080`.
+5. Inspect runtime state: `docker ps` and `docker logs my-nginx`.
+6. Manage the lifecycle: `docker stop`, `docker start`, `docker rm`.
+
+---
+
+## 11. Key Principles
+
+- Validate at system boundaries. The host port, container port, and volume mount are explicit contracts between host and container.
+- Fail fast on missing inputs. A wrong path in `-v` or a duplicate container name produces immediate, clear errors.
+- Design for observability. Status, logs, and port mappings each reveal a different aspect of container behavior.
+- Reuse resources. One image produces many containers. Stop and remove containers freely; the image persists.
+- Prefer explicit behavior over defaults. Read-only mounts, named containers, and explicit port mappings remove ambiguity.
+- Separate content from infrastructure. The HTML directory lives on the host. Updates apply immediately, without rebuilding the container.
+
+---
+
+## 12. Troubleshooting
 
 ### Error: `port is already allocated`
 
 | Field | Detail |
 |---|---|
-| **Cause** | Another process is using the specified host port. |
-| **Solution** | Choose a different host port, or free the port: |
+| Cause | Another process is using the specified host port. |
+| Solution | Choose a different host port, or free the port: |
 
 ```bash
 lsof -ti:8080 | xargs kill -9
@@ -822,8 +864,8 @@ lsof -ti:8080 | xargs kill -9
 
 | Field | Detail |
 |---|---|
-| **Cause** | A container named `my-nginx` already exists (possibly stopped). |
-| **Solution** | Remove the existing container first: |
+| Cause | A container named `my-nginx` already exists (possibly stopped). |
+| Solution | Remove the existing container first: |
 
 ```bash
 docker rm my-nginx
@@ -833,44 +875,64 @@ docker rm my-nginx
 
 | Field | Detail |
 |---|---|
-| **Cause** | The container is not running, or the port mapping does not match. |
-| **Solution** | Inspect container state and port mapping: |
+| Cause | The container is not running, or the port mapping does not match. |
+| Solution | Inspect container state and port mapping: |
 
 ```bash
 docker ps
 docker inspect my-nginx | grep -A5 Mounts
 ```
 
----
+### Error: `docker: Error response from daemon: bind: address already in use`
 
-## ➡️ Next Steps
+| Field | Detail |
+|---|---|
+| Cause | Another container or host service is bound to the same host port. |
+| Solution | Identify and stop the conflicting process, or select a different host port. |
 
-1. Serve a multi-page HTML site by adding additional files to `nginx-lab/html/` and navigating to them by path.
-2. Write a custom `nginx.conf` and mount it into the container to configure custom routing rules.
-3. Replace the `:ro` mount with a writable mount and observe what permissions the NGINX process holds inside the container.
-4. Build a custom image with a Dockerfile that includes the HTML at build time rather than via a runtime mount.
+### Error: Permission denied when writing to a mounted volume
 
----
-
-## 📚 Additional Resources
-
-- 📖 [Docker CLI Reference](https://docs.docker.com/reference/cli/docker/)
-- 📦 [Official NGINX Docker Image](https://hub.docker.com/_/nginx)
-- 💾 [Docker Volume Documentation](https://docs.docker.com/storage/volumes/)
-- 🛠️ [Puku CLI Docs](https://puku.dev)
+| Field | Detail |
+|---|---|
+| Cause | The mount is read-only (`:ro`) or the host directory has restrictive permissions. |
+| Solution | Use `:ro` only when the application does not need write access. Otherwise, ensure the host directory is writable by the UID running inside the container. |
 
 ---
 
-## 📝 License
+## 13. Best Practices
 
-This lab is released under the **MIT License**. See [`LICENSE`](LICENSE) for details.
+- Pin image versions in production. Use `nginx:1.27` instead of `nginx:latest` to ensure reproducible deployments.
+- Use named containers. The `--name` flag makes logs, stop, and rm operations unambiguous.
+- Prefer read-only mounts for content directories. Web servers do not need to modify HTML files at runtime.
+- Set a restart policy. Use `--restart unless-stopped` for services that must recover from host reboots.
+- Centralize configuration. Mount custom `nginx.conf` files from the host instead of building custom images for every configuration change.
+- Keep images lean. Use the official `nginx:alpine` variant for smaller image size when the full Debian-based image is not required.
+- Avoid running containers as root in production. Add a non-root user to a derived image when security requirements demand it.
+- Log to stdout. The official NGINX image is already configured to write logs to stdout and stderr, which integrates with `docker logs`.
 
 ---
 
-<div align="center">
+## 14. Next Steps
 
-**⭐ If this lab helped you, consider starring the repo!**
+1. Build a custom image with a Dockerfile that includes the HTML at build time rather than via a runtime mount.
+2. Compose multiple services using Docker Compose — for example, NGINX in front of a backend application.
+3. Add a health check directive in a custom `nginx.conf` so Docker can report container health, not just process status.
+4. Provision TLS certificates using a reverse proxy with Let's Encrypt.
+5. Move from bind mounts to named Docker volumes for stateful data and shared storage across containers.
+6. Explore container orchestration with Kubernetes for multi-host deployments.
 
-Made with ❤️ using **Puku CLI**
+---
 
-</div>
+## 15. Additional Resources
+
+- Docker CLI Reference — <https://docs.docker.com/reference/cli/docker/>
+- Official NGINX Docker Image — <https://hub.docker.com/_/nginx>
+- Docker Volume Documentation — <https://docs.docker.com/storage/volumes/>
+- Docker Networking Overview — <https://docs.docker.com/network/>
+- NGINX Configuration Documentation — <https://nginx.org/en/docs/>
+
+---
+
+## License
+
+This lab manual is released under the MIT License. See [`LICENSE`](LICENSE) for details.
