@@ -103,7 +103,7 @@ You are the engineer responsible for delivering a working, reproducible web serv
 
 A running NGINX container that serves a custom HTML page, mapped to host port 8080, with its content directory mounted from the project workspace. The configuration must work identically when re-run on any Docker-enabled machine.
 
-<p align="center"><img src="image/into_data_dir.png" alt="Project layout: the nginx-lab directory holds the HTML content that will be mounted into the container."></p>
+<p align="center"><img src="image/how_it_work.png" alt="Project layout: the nginx-lab directory holds the HTML content that will be mounted into the container."></p>
 
 ---
 
@@ -196,7 +196,7 @@ Run the following command in your terminal:
 docker pull nginx
 ```
 
-Docker downloads each layer of the image in parallel and confirms each layer as it completes.
+Docker downloads each layer of the image in parallel and confirms each layer as it completes. Each line of output represents one filesystem layer of the NGINX image — base Debian files, NGINX binaries, default config, and so on. Layers are reused across images, so if you have pulled any Debian-based image before, only the new NGINX-specific layers are downloaded.
 
 <p align="center"><img src="image/docker_pull.png" alt="Terminal mid-way through docker pull nginx: Docker has started downloading layers and the first progress lines are visible."></p>
 
@@ -248,9 +248,9 @@ A container started from the default `nginx` image serves only its built-in welc
   <img src="image/port-mapping.png" alt="Port mapping: the host exposes 8080, the container listens on 80. Docker bridges them so curl localhost:8080 reaches NGINX inside the container.">
 </p>
 
-<p align="center">
-  <img src="image/volume-mount.png" alt="Volume mount: the host folder ./nginx-lab/html is mounted at /usr/share/nginx/html inside the container. NGINX reads your files from there. The :ro flag makes the mount read-only.">
-</p>
+A volume mount binds a directory on your host machine to a path inside the container. In this lab, the host folder `./nginx-lab/html` is mounted at `/usr/share/nginx/html` inside the container — the directory where NGINX looks for HTML files by default. Because the mount is read-only (`:ro`), NGINX can read your files but cannot modify or delete them from inside the container. Any edit you make on the host appears immediately in the served page, with no container restart required.
+
+**Visual mental model:** think of the volume mount as a one-way mirror from host to container. Your HTML files live on the host's filesystem; inside the container, they appear at `/usr/share/nginx/html` and NGINX serves them as if they had been packaged into the image at build time. The `:ro` flag is the "read-only" side of the mirror — files flow in for reading, but nothing inside the container can write back to your host directory.
 
 #### What You Will Build
 
@@ -322,6 +322,8 @@ On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
 </details>
 
 <p align="center"><img src="image/docker-run-host.png" alt="Docker prints a long 64-char container ID and returns to the prompt. That ID means the container is now running detached in the background."></p>
+
+After the command runs, the prompt returns immediately. The 64-character hex string is the container ID — a unique handle you can use to address this specific container. Although the prompt is back, the container is alive in the background because of the `-d` (detached) flag.
 
 #### Understanding
 
@@ -485,6 +487,8 @@ Step 2: View container logs.
 docker logs my-nginx
 ```
 
+The `docker logs` command streams everything the container has written to its standard output and standard error streams. NGINX writes three kinds of lines: startup messages from its entrypoint, master-process notifications about worker processes, and one access-log line per HTTP request that hits the server. The timestamps and client IPs in each line are the data you use to answer "who hit the server, when, and what happened."
+
 <p align="center"><img src="image/docker-logs.png" alt="Log lines: Configuration complete; ready for start up, then worker process notices, then access log entries showing GET requests from 172.17.0.1 with status 200. This is NGINX's stdout."></p>
 
 #### Understanding
@@ -624,6 +628,8 @@ docker start my-nginx
 curl http://localhost:8080
 ```
 
+`docker start` re-launches the process inside the same container record. The container ID, name, and any data on its writable layer are preserved across the stop/start cycle. The volume mount remains attached, so the second `curl` returns the same HTML as before — the content survives because it lives on the host, not inside the container.
+
 <p align="center"><img src="image/docker_start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
 
 <details>
@@ -662,11 +668,15 @@ nginx        latest    ec4ed8b5299e   2 weeks ago   241MB
 
 #### Experiment: Start and Removed Container
 
+In Chapter 4 Step 3, you ran `docker rm my-nginx`, which deletes the container record. Now try to start it again.
+
 Run:
 
 ```bash
-docker start my-nginx
+docker start my-nginx && rm my-nginx
 ```
+
+The first command (`docker start`) will fail because the named container no longer exists in Docker's records. The shell never reaches the second command (`rm`), because `&&` only runs the second when the first succeeds. This shows that `docker rm` is permanent: once the record is gone, only `docker run` can re-create a container from the image.
 
 <p align="center"><img src="image/docker stop and remove.png" alt="Docker prints Error response from daemon: No such container: my-nginx. The record is gone, so start cannot find it. You must use docker run to create a new container from the image."></p>
 
