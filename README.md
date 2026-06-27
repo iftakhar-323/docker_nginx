@@ -160,7 +160,7 @@ docker/
 Docker images are the immutable templates from which containers are created. Before you can run any container, you must have its image available locally. Docker Hub is the default public registry that hosts official, maintained images for common software, including NGINX.
 
 <p align="center">
-  <img src="image/docker-pull-nginx.png" alt="Dataflow: Docker Hub pulls into a local image, image runs as a container, container port 80 is exposed to host port 8080, host directory is mounted into the container's web root">
+  <img src="image/docker_pull.png" alt="Architecture diagram: Docker Hub on the left, a local image in the middle, a running container on the right, with a port bridge from host 8080 to container 80 and a host directory mounted into the container web root.">
 </p>
 
 #### What You Will Build
@@ -196,9 +196,9 @@ docker pull nginx
 
 Docker downloads each layer of the image in parallel and confirms each layer as it completes.
 
-<p align="center"><img src="image/01-docker-pull-step1.png" alt="First lines of docker pull nginx: Docker contacts Docker Hub, resolves library/nginx:latest, and begins downloading the first layer. This is the early progress screen, before the full table appears."></p>
+<p align="center"><img src="image/docker_pull.png" alt="Terminal mid-way through docker pull nginx: Docker has started downloading layers and the first progress lines are visible."></p>
 
-<p align="center"><img src="image/02-docker-pull-complete.png" alt="Docker finishes pulling layer by layer, then prints Digest and Status. The last line confirms docker.io/library/nginx:latest is downloaded."></p>
+<p align="center"><img src="image/docker_pull.png" alt="Terminal after docker pull nginx completes: the full layer list is shown, followed by Digest and Status: Downloaded newer image for nginx:latest."></p>
 
 #### Understanding
 
@@ -215,9 +215,9 @@ Confirm the image is available locally:
 docker images
 ```
 
-<p align="center"><img src="image/03-docker-images-output.png" alt="The REPOSITORY column shows nginx, TAG shows latest, IMAGE ID shows a 12-char hash, SIZE shows about 241MB. This proves the image exists on your machine and is ready to run."></p>
+<p align="center"><img src="image/docker_image.png" alt="Terminal showing docker images: a table with REPOSITORY, TAG, IMAGE ID, CREATED, and SIZE columns. nginx appears with tag latest."></p>
 
-<p align="center"><img src="image/04-docker-images-detail.png" alt="Same docker images output at higher resolution: each row is one image with its tag, ID, created time, and size. Useful when you have multiple images and need to read IDs precisely."></p>
+<p align="center"><img src="image/docker_image.png" alt="Same docker images output: each row is one image with its tag, ID, created time, and size. Useful when you have multiple images and need to read IDs precisely."></p>
 
 Predict: which columns will this command display?
 
@@ -288,7 +288,7 @@ Step 2: Verify the file contents.
 cat nginx-lab/html/index.html
 ```
 
-<p align="center"><img src="image/05-create-html-file.png" alt="Terminal shows echo creating index.html, then cat printing its single h1 line. This file is the content the container will serve."></p>
+<p align="center"><img src="image/into_data_dir.png" alt="Terminal shows echo creating index.html, then cat printing its single h1 line. This file is the content the container will serve."></p>
 
 Step 3: Run the NGINX container with a volume mount and port mapping. Complete the blanks below.
 
@@ -325,7 +325,7 @@ docker run --name my-nginx \
 On Windows PowerShell, replace `$(pwd)` with `${PWD}`.
 </details>
 
-<p align="center"><img src="image/06-docker-run-command.png" alt="Docker prints a long 64-char container ID and returns to the prompt. That ID means the container is now running detached in the background."></p>
+<p align="center"><img src="image/docker-run.png" alt="Docker prints a long 64-char container ID and returns to the prompt. That ID means the container is now running detached in the background."></p>
 
 #### Understanding
 
@@ -344,7 +344,7 @@ Predict: what will the following command return?
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/07-curl-test-result.png" alt="curl returns the literal h1 line you wrote. This proves the host reached the container, NGINX read the mounted file, and served it back."></p>
+<p align="center"><img src="image/html_docker_name.png" alt="curl returns the literal h1 line you wrote. This proves the host reached the container, NGINX read the mounted file, and served it back."></p>
 
 <details>
 <summary>Expected output</summary>
@@ -357,7 +357,7 @@ The request reaches port 8080 on the host. The host forwards it to port 80 insid
 
 The same result appears when visiting `http://localhost:8080` in a browser:
 
-<p align="center"><img src="image/08-browser-test-result.png" alt="Browser at localhost:8080 displays the heading on a white page. Same content as curl, just rendered."></p>
+<p align="center"><img src="image/docker-run-host.png" alt="Browser at localhost:8080 displays the heading on a white page. Same content as curl, just rendered."></p>
 </details>
 
 #### Experiment: Remove the Port Mapping
@@ -385,7 +385,7 @@ Step 3: Attempt the same request.
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/09-curl-connection-refused.png" alt="curl prints Connection refused on port 8080. The container is still running, but there is no bridge from the host. This is the symptom of a missing -p flag."></p>
+<p align="center"><img src="image/docker_pause.png" alt="curl prints Connection refused on port 8080. The container is still running, but there is no bridge from the host. This is the symptom of a missing -p flag."></p>
 
 What happens, and why?
 
@@ -464,9 +464,9 @@ Step 1: List running containers.
 docker ps
 ```
 
-<p align="center"><img src="image/10-docker-ps-output.png" alt="Table with NAMES my-nginx, STATUS Up, PORTS 0.0.0.0:8080->80/tcp. This confirms the process is alive, the name is correct, and the port mapping is active."></p>
+<p align="center"><img src="image/docker-ps.png" alt="Table with NAMES my-nginx, STATUS Up, PORTS 0.0.0.0:8080->80/tcp. This confirms the process is alive, the name is correct, and the port mapping is active."></p>
 
-<p align="center"><img src="image/11-docker-ps-detail.png" alt="Same docker ps output at higher resolution: the PORTS column 0.0.0.0:8080->80/tcp is fully legible. This is what you read when troubleshooting why a request is reaching the wrong port."></p>
+<p align="center"><img src="image/docker-ps.png" alt="Same docker ps output at higher resolution: the PORTS column 0.0.0.0:8080->80/tcp is fully legible. This is what you read when troubleshooting why a request is reaching the wrong port."></p>
 
 <details>
 <summary>Expected output</summary>
@@ -491,9 +491,9 @@ Step 2: View container logs.
 docker logs my-nginx
 ```
 
-<p align="center"><img src="image/12-docker-logs-output.png" alt="Log lines: Configuration complete; ready for start up, then worker process notices, then access log entries showing GET requests from 172.17.0.1 with status 200. This is NGINX's stdout."></p>
+<p align="center"><img src="image/docker-logs.png" alt="Log lines: Configuration complete; ready for start up, then worker process notices, then access log entries showing GET requests from 172.17.0.1 with status 200. This is NGINX's stdout."></p>
 
-<p align="center"><img src="image/13-docker-logs-access.png" alt="A zoomed-in view of just the access log portion: client IP, timestamp, HTTP method and path, status code, response size, referrer, and user agent. This is the format you parse when investigating who hit the server, when, and with what result."></p>
+<p align="center"><img src="image/docker-logs.png" alt="A zoomed-in view of just the access log portion: client IP, timestamp, HTTP method and path, status code, response size, referrer, and user agent. This is the format you parse when investigating who hit the server, when, and with what result."></p>
 
 #### Understanding
 
@@ -526,15 +526,15 @@ A `404` entry for `/favicon.ico` is expected because browsers request this file 
 
 Step 1: Run `docker logs my-nginx` and note the current number of access log entries.
 
-<p align="center"><img src="image/14-docker-logs-live-1.png" alt="First snapshot of docker logs my-nginx. The log buffer ends after a small number of access entries, with the most recent curl request at the bottom."></p>
+<p align="center"><img src="image/docker-logs.png" alt="First snapshot of docker logs my-nginx. The log buffer ends after a small number of access entries, with the most recent curl request at the bottom."></p>
 
 Step 2: In another terminal tab, run `curl http://localhost:8080` three times.
 
-<p align="center"><img src="image/15-docker-logs-live-2.png" alt="Second snapshot of docker logs my-nginx. The access log section has grown: more GET / entries and matching 200 responses are visible."></p>
+<p align="center"><img src="image/docker-logs.png" alt="Second snapshot of docker logs my-nginx. The access log section has grown: more GET / entries and matching 200 responses are visible."></p>
 
 Step 3: Run `docker logs my-nginx` again.
 
-<p align="center"><img src="image/16-docker-logs-live-3.png" alt="Third snapshot of docker logs my-nginx. The access log section is now noticeably longer than in the first frame. This is the visible evidence that the buffer accumulated every request."></p>
+<p align="center"><img src="image/docker-logs.png" alt="Third snapshot of docker logs my-nginx. The access log section is now noticeably longer than in the first frame. This is the visible evidence that the buffer accumulated every request."></p>
 
 What changed?
 
@@ -608,7 +608,7 @@ Step 1: Stop the container.
 docker stop my-nginx
 ```
 
-<p align="center"><img src="image/17-docker-stop.png" alt="Docker prints my-nginx. The process is sent SIGTERM, then SIGKILL after a grace period. It is no longer running, but the record still exists."></p>
+<p align="center"><img src="image/docker-stop.png" alt="Docker prints my-nginx. The process is sent SIGTERM, then SIGKILL after a grace period. It is no longer running, but the record still exists."></p>
 
 Predict: will `my-nginx` appear in `docker ps` output?
 
@@ -626,7 +626,7 @@ CONTAINER ID   IMAGE   COMMAND            CREATED         STATUS                
 8106ee13f2aa   nginx   "/docker-entry…"   10 minutes ago  Exited (0) 30 seconds ago  my-nginx
 ```
 
-<p align="center"><img src="image/18-docker-ps-a.png" alt="Output of docker ps -a after docker stop: the table still lists my-nginx, but STATUS now reads Exited (0) 30 seconds ago. The container record is preserved; only the runtime state changed."></p>
+<p align="center"><img src="image/docker-ps.png" alt="Output of docker ps -a after docker stop: the table still lists my-nginx, but STATUS now reads Exited (0) 30 seconds ago. The container record is preserved; only the runtime state changed."></p>
 </details>
 
 Step 2: Restart the container.
@@ -636,9 +636,9 @@ docker start my-nginx
 curl http://localhost:8080
 ```
 
-<p align="center"><img src="image/19-docker-start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
+<p align="center"><img src="image/docker_start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
 
-<p align="center"><img src="image/20-docker-curl-after-restart.png" alt="curl http://localhost:8080 returns the same h1 line as before. The mounted volume was never unmounted, so the original content survives the stop-and-restart cycle."></p>
+<p align="center"><img src="image/docker_unpause.png" alt="curl http://localhost:8080 returns the same h1 line as before. The mounted volume was never unmounted, so the original content survives the stop-and-restart cycle."></p>
 
 <details>
 <summary>Expected output</summary>
@@ -655,7 +655,7 @@ docker stop my-nginx
 docker rm my-nginx
 ```
 
-<p align="center"><img src="image/21-docker-stop-rm.png" alt="Two lines, my-nginx each. rm deletes the container record. The image nginx:latest in docker images is unchanged."></p>
+<p align="center"><img src="image/docker stop and remove.png" alt="Two lines, my-nginx each. rm deletes the container record. The image nginx:latest in docker images is unchanged."></p>
 
 Step 4: Verify the image remains.
 
@@ -663,7 +663,7 @@ Step 4: Verify the image remains.
 docker images
 ```
 
-<p align="center"><img src="image/22-docker-images-after-rm.png" alt="docker images still lists nginx latest. This proves rm operates on the container, never on the image. You can run my-nginx again from this same image any time."></p>
+<p align="center"><img src="image/docker_image.png" alt="docker images still lists nginx latest. This proves rm operates on the container, never on the image. You can run my-nginx again from this same image any time."></p>
 
 <details>
 <summary>Expected output (image still present)</summary>
@@ -682,7 +682,7 @@ Run:
 docker start my-nginx
 ```
 
-<p align="center"><img src="image/23-docker-start-removed-error.png" alt="Docker prints Error response from daemon: No such container: my-nginx. The record is gone, so start cannot find it. You must use docker run to create a new container from the image."></p>
+<p align="center"><img src="image/version_dockerinfo.png" alt="Docker prints Error response from daemon: No such container: my-nginx. The record is gone, so start cannot find it. You must use docker run to create a new container from the image."></p>
 
 What error do you see, and what does it tell you?
 
