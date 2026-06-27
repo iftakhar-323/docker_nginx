@@ -196,7 +196,9 @@ docker pull nginx
 
 Docker downloads each layer of the image in parallel and confirms each layer as it completes.
 
-<p align="center"><img src="image/02-docker-pull-complete.png" alt="Docker pulls layer by layer, then prints Digest and Status. The last line confirms docker.io/library/nginx:latest is downloaded."></p>
+<p align="center"><img src="image/01-docker-pull-step1.png" alt="First lines of docker pull nginx: Docker contacts Docker Hub, resolves library/nginx:latest, and begins downloading the first layer. This is the early progress screen, before the full table appears."></p>
+
+<p align="center"><img src="image/02-docker-pull-complete.png" alt="Docker finishes pulling layer by layer, then prints Digest and Status. The last line confirms docker.io/library/nginx:latest is downloaded."></p>
 
 #### Understanding
 
@@ -214,6 +216,8 @@ docker images
 ```
 
 <p align="center"><img src="image/03-docker-images-output.png" alt="The REPOSITORY column shows nginx, TAG shows latest, IMAGE ID shows a 12-char hash, SIZE shows about 241MB. This proves the image exists on your machine and is ready to run."></p>
+
+<p align="center"><img src="image/04-docker-images-detail.png" alt="Same docker images output at higher resolution: each row is one image with its tag, ID, created time, and size. Useful when you have multiple images and need to read IDs precisely."></p>
 
 Predict: which columns will this command display?
 
@@ -462,6 +466,8 @@ docker ps
 
 <p align="center"><img src="image/10-docker-ps-output.png" alt="Table with NAMES my-nginx, STATUS Up, PORTS 0.0.0.0:8080->80/tcp. This confirms the process is alive, the name is correct, and the port mapping is active."></p>
 
+<p align="center"><img src="image/11-docker-ps-detail.png" alt="Same docker ps output at higher resolution: the PORTS column 0.0.0.0:8080->80/tcp is fully legible. This is what you read when troubleshooting why a request is reaching the wrong port."></p>
+
 <details>
 <summary>Expected output</summary>
 
@@ -486,6 +492,8 @@ docker logs my-nginx
 ```
 
 <p align="center"><img src="image/12-docker-logs-output.png" alt="Log lines: Configuration complete; ready for start up, then worker process notices, then access log entries showing GET requests from 172.17.0.1 with status 200. This is NGINX's stdout."></p>
+
+<p align="center"><img src="image/13-docker-logs-access.png" alt="A zoomed-in view of just the access log portion: client IP, timestamp, HTTP method and path, status code, response size, referrer, and user agent. This is the format you parse when investigating who hit the server, when, and with what result."></p>
 
 #### Understanding
 
@@ -518,9 +526,15 @@ A `404` entry for `/favicon.ico` is expected because browsers request this file 
 
 Step 1: Run `docker logs my-nginx` and note the current number of access log entries.
 
+<p align="center"><img src="image/14-docker-logs-live-1.png" alt="First snapshot of docker logs my-nginx. The log buffer ends after a small number of access entries, with the most recent curl request at the bottom."></p>
+
 Step 2: In another terminal tab, run `curl http://localhost:8080` three times.
 
+<p align="center"><img src="image/15-docker-logs-live-2.png" alt="Second snapshot of docker logs my-nginx. The access log section has grown: more GET / entries and matching 200 responses are visible."></p>
+
 Step 3: Run `docker logs my-nginx` again.
+
+<p align="center"><img src="image/16-docker-logs-live-3.png" alt="Third snapshot of docker logs my-nginx. The access log section is now noticeably longer than in the first frame. This is the visible evidence that the buffer accumulated every request."></p>
 
 What changed?
 
@@ -611,6 +625,8 @@ docker ps -a
 CONTAINER ID   IMAGE   COMMAND            CREATED         STATUS                     NAMES
 8106ee13f2aa   nginx   "/docker-entry…"   10 minutes ago  Exited (0) 30 seconds ago  my-nginx
 ```
+
+<p align="center"><img src="image/18-docker-ps-a.png" alt="Output of docker ps -a after docker stop: the table still lists my-nginx, but STATUS now reads Exited (0) 30 seconds ago. The container record is preserved; only the runtime state changed."></p>
 </details>
 
 Step 2: Restart the container.
@@ -621,6 +637,8 @@ curl http://localhost:8080
 ```
 
 <p align="center"><img src="image/19-docker-start.png" alt="Docker prints my-nginx again. The same container ID is reused. Anything the container had on disk is preserved across stop and start."></p>
+
+<p align="center"><img src="image/20-docker-curl-after-restart.png" alt="curl http://localhost:8080 returns the same h1 line as before. The mounted volume was never unmounted, so the original content survives the stop-and-restart cycle."></p>
 
 <details>
 <summary>Expected output</summary>
