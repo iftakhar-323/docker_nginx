@@ -161,10 +161,6 @@ docker/
 
 Docker images are the immutable templates from which containers are created. Before you can run any container, you must have its image available locally. Docker Hub is the default public registry that hosts official, maintained images for common software, including NGINX.
 
-<p align="center">
-  <img src="image/how_it_work.png" alt="Architecture diagram: Docker Hub on the left, a local image in the middle, a running container on the right, with a port bridge from host 8080 to container 80 and a host directory mounted into the container web root.">
-</p>
-
 #### What You Will Build
 
 You will download the official `nginx` image from Docker Hub and confirm it is available on your local machine.
