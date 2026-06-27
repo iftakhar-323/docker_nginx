@@ -1,4 +1,4 @@
-# Lab Manual: Running NGINX in Docker
+# Running an NGINX Web Server in a Docker Container
 
 > A concise, image-driven Docker + NGINX lab. Pull the NGINX image, serve custom HTML, inspect a running container, and manage its lifecycle from the command line.
 
@@ -8,7 +8,7 @@ This lab is designed to be completed inside **Puku CLI** because Puku keeps the 
 
 ## 1. Title
 
-**Containerized Web Serving with NGINX and Docker**
+**Running an NGINX Web Server in a Docker Container**
 
 ---
 
