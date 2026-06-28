@@ -1,107 +1,121 @@
 # Running an NGINX Web Server in a Docker Container
 
-> A Beginner-Friendly Docker + NGINX Lab Manual
+> **Professional Lab Manual – Docker & NGINX using Docker CLI**
 
 ---
 
-## Introduction
+# 1. Introduction
 
-Docker is one of the most popular containerization platforms used to package and deploy applications consistently across different environments. Instead of installing software directly on the operating system, Docker runs applications inside isolated containers.
+## What is this Lab?
 
-In this lab, you will deploy an **NGINX Web Server** inside a Docker container, serve a custom HTML page, inspect container information, and manage the complete container lifecycle using Docker CLI.
+This lab introduces the fundamental concepts of Docker by deploying an **NGINX Web Server** inside a Docker container. Instead of installing software directly on the operating system, Docker packages applications and their dependencies into lightweight containers that can run consistently across different environments.
 
-This lab is designed for beginners and follows a hands-on learning approach.
+Throughout this lab, you will learn how to download Docker images, create containers, mount local files, configure networking, inspect running containers, and manage the complete lifecycle of a Docker container.
+
+<p align="center">
+<img src="images/how_it_work.png" width="700">
+</p>
 
 ---
 
-## Why Learn Docker?
+## Why is this Important?
 
-Docker solves the common problem of **"It works on my machine."**
+Docker has become one of the most important technologies in modern software development because it provides:
 
-It provides:
-
-- Consistent development environments
-- Easy application deployment
+- Consistent execution environments
+- Fast application deployment
 - Lightweight virtualization
-- Faster software delivery
-- Better resource utilization
-- Simplified DevOps workflow
+- Easy scalability
+- Simplified dependency management
+- Efficient resource utilization
 
-Today Docker is widely used in Cloud Computing, DevOps, Software Engineering, Backend Development, and Microservice Architecture.
+Docker is widely used in:
+
+- DevOps
+- Cloud Computing
+- CI/CD Pipelines
+- Backend Development
+- Software Engineering
+- Microservice Architecture
 
 ---
 
 ## What You Will Build
 
-At the end of this lab you will build a complete Dockerized NGINX web server capable of:
+By completing this lab, you will build a complete Dockerized NGINX web server capable of:
 
 - Pulling Docker images
 - Running Docker containers
 - Serving custom HTML pages
-- Mapping container ports
 - Mounting local directories
-- Inspecting running containers
+- Configuring port mapping
 - Viewing container logs
-- Managing the container lifecycle
-
-<p align="center">
-    <img src="image/how_it_work.png" width="700">
-</p>
+- Managing the complete container lifecycle
 
 ---
 
-# Learning Objectives
+# 2. Learning Objectives
 
-After completing this lab, you will be able to:
+After successfully completing this lab, you will be able to:
 
-- Pull Docker images from Docker Hub.
-- Create and run Docker containers.
-- Configure Docker port mapping.
-- Mount host directories into containers.
-- Inspect running containers.
-- Analyze Docker logs.
-- Start, stop, restart, pause, and remove containers.
-- Troubleshoot common Docker problems.
+- Create Docker containers.
+- Configure Docker networking.
+- Build an NGINX web server.
+- Deploy a containerized application.
+- Analyze Docker container status.
+- Test container deployment.
+- Debug common Docker issues.
+- Integrate local files with Docker containers.
 
 ---
 
-# Prerequisites
+# 3. Prerequisites
 
-Before starting this lab, make sure you have the following.
+Before starting this lab, ensure that the following software is installed.
 
-## Required Knowledge
+| Software | Purpose |
+|-----------|----------|
+| Docker Engine | Container Runtime |
+| Docker CLI | Container Management |
+| Puku CLI | Development Environment |
+| Git | Version Control |
+| VS Code (Optional) | Markdown Editing |
+
+### Required Knowledge
 
 - Basic Linux terminal commands
 - Basic HTML
 - Basic understanding of web servers
 
-## Required Software
+---
 
-| Software | Purpose |
-|-----------|----------|
-| Docker Engine | Container Runtime |
-| Docker CLI | Docker Commands |
-| Puku CLI | Development Environment |
-| Git | Version Control |
-| VS Code (Optional) | Markdown Editing |
+# 4. Prologue (Real-World Scenario)
+
+A software company wants to deploy an internal documentation website that every developer can access locally.
+
+Installing NGINX separately on each developer's machine results in inconsistent environments, dependency conflicts, and difficult maintenance.
+
+As a DevOps Engineer, your responsibility is to deploy the web server inside a Docker container so that every developer can start the same environment using Docker.
+
+Your expected outcome is to create a reusable Docker environment capable of serving a custom web page.
 
 ---
 
-# Real-World Scenario
+# 5. Environment Setup
 
-Imagine your company wants to deploy a lightweight internal documentation website.
+## System Requirements
 
-Instead of installing NGINX separately on every computer, the DevOps team decides to package everything inside Docker.
-
-Your responsibility is to deploy the website using an official Docker image so that every developer can run the exact same environment without configuration issues.
+- Linux / Windows / macOS
+- Docker Engine Installed
+- Docker CLI
+- Internet Connection
+- Web Browser
 
 ---
-
-# Environment Setup
 
 ## Step 1 — Verify Docker Installation
 
-Open the terminal and run:
+Run:
 
 ```bash
 docker --version
@@ -114,7 +128,7 @@ Docker version 24.x.x
 ```
 
 <p align="center">
-    <img src="image/version_dockerinfo.png" width="700">
+<img src="images/version_dockerinfo.png" width="700">
 </p>
 
 ---
@@ -127,7 +141,7 @@ Run:
 docker info
 ```
 
-If Docker is installed correctly, Docker Engine information will appear.
+This command verifies that Docker Engine is running correctly.
 
 ---
 
@@ -135,6 +149,7 @@ If Docker is installed correctly, Docker Engine information will appear.
 
 ```bash
 mkdir -p nginx-lab/html
+
 cd nginx-lab
 ```
 
@@ -142,7 +157,7 @@ cd nginx-lab
 
 ## Step 4 — Project Structure
 
-Your project should look like this.
+Create the following directory structure.
 
 ```text
 nginx-lab/
@@ -150,39 +165,39 @@ nginx-lab/
 ├── html/
 │   └── index.html
 │
-├── image/
+├── images/
+│   ├── how_it_work.png
+│   ├── version_dockerinfo.png
 │   ├── docker_pull.png
 │   ├── docker_image.png
 │   ├── docker-run.png
 │   ├── docker-ps.png
 │   ├── docker-logs.png
-│   └── ...
+│   ├── port-mapping.png
+│   └── container-lifecycle.png
 │
 └── README.md
 ```
 
 ---
 
-## Step 5 — Create the HTML Page
+## Step 5 — Create the HTML File
 
-Create a file named **index.html** inside the **html** directory.
+Create an `index.html` file inside the `html` directory.
 
 ```html
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Docker NGINX Lab</title>
 </head>
-
 <body>
 
 <h1>Hello from Docker!</h1>
 
-<p>This page is served by an NGINX container.</p>
+<p>This page is served from an NGINX Docker Container.</p>
 
 </body>
-
 </html>
 ```
 
@@ -190,49 +205,115 @@ Create a file named **index.html** inside the **html** directory.
 
 # Think First
 
-Before writing any Docker command, answer the following questions.
+Before executing any Docker command, answer the following questions.
 
 ### Question 1
 
-Can a Docker Image run by itself?
-
-<details>
-<summary>Show Answer</summary>
-
-No.
-
-A Docker Image is a read-only template.
-
-Only a Docker Container can run.
-
-</details>
+What is the primary difference between a Docker Image and a Docker Container?
 
 ---
 
 ### Question 2
 
-Why do developers prefer Docker instead of installing software directly on the operating system?
+Why do organizations prefer Docker over installing software directly on operating systems?
+
+---
+
+# Fill in the Blanks
+
+Complete the following command.
+
+```bash
+docker ______ nginx
+```
+
+---
+
+Complete the following command.
+
+```bash
+mkdir -p ______/html
+```
+
+---
+
+# Solution
 
 <details>
-<summary>Show Answer</summary>
 
-Docker creates isolated environments that eliminate dependency conflicts and ensure applications run consistently across different machines.
+<summary>Show Solution</summary>
+
+```bash
+docker pull nginx
+```
+
+```bash
+mkdir -p nginx-lab/html
+```
 
 </details>
 
 ---
 
-# Environment Checklist
+# Understanding
 
-Before moving to the implementation section, verify the following.
+In this section you prepared the Docker environment.
+
+You verified the Docker installation, confirmed that Docker Engine was running, created the project directory, and prepared the HTML workspace that will later be mounted inside the Docker container.
+
+These steps ensure that the development environment is ready before creating the first Docker container.
+
+---
+
+# Test & Verify
+
+Before moving to the implementation chapters, predict the answers to the following questions.
+
+1. Will Docker work if Docker Engine is not running?
+
+2. Can a Docker container exist without a Docker image?
+
+3. Why is an HTML folder created before running the container?
+
+Discuss your answers before continuing.
+
+---
+
+# Checkpoint
+
+Verify the following tasks.
 
 - [ ] Docker is installed.
 - [ ] Docker Engine is running.
 - [ ] Project directory has been created.
 - [ ] HTML file has been created.
-- [ ] Project structure matches the diagram.
+- [ ] Folder structure matches the lab manual.
 
 ---
+
+# Experiment
+
+Stop the Docker Engine (if your environment allows it) and run:
+
+```bash
+docker info
+```
+
+Observe the error message.
+
+**Question**
+
+Why does Docker fail to execute the command when Docker Engine is stopped?
+
+Write your observation before continuing to the next chapter.
+
+---
+
+## Part 1 Summary
+
+You have successfully prepared the Docker development environment.
+
+In the next section, you will download the official NGINX image, verify the downloaded image, and create your first Docker container.
 
 ---
 
@@ -240,81 +321,157 @@ Before moving to the implementation section, verify the following.
 
 ## Overview
 
-Before running a container, Docker must download its image. An image is a read-only template that contains everything needed to create a container.
-
-NGINX is one of the most widely used web servers and its official image is available on Docker Hub.
+Docker containers are created from Docker images. Before running a container, the required image must first be downloaded from Docker Hub. In this chapter, you will download the official NGINX image and verify that it is available on your local machine.
 
 ---
 
-## Objective
+## What You Will Build
 
-Download the official NGINX Docker image and verify that it exists locally.
+By the end of this chapter, you will:
+
+- Download the official NGINX image.
+- Store the image locally.
+- Verify the downloaded image.
+- Understand the relationship between Docker Images and Containers.
+
+---
+
+## Think First
+
+Answer the following questions before executing any command.
+
+### Question 1
+
+Can a Docker container be created without first downloading an image?
+
+### Question 2
+
+Where are Docker images stored after downloading?
+
+Write your answers before continuing.
 
 ---
 
 ## Implementation
 
-Pull the image from Docker Hub.
+Download the official NGINX image.
 
 ```bash
 docker pull nginx
 ```
 
 <p align="center">
-<img src="image/docker_pull.png" width="700">
+<img src="images/docker_pull.png" width="700">
 </p>
 
 ---
 
-## Verify
+### Verify the Download
 
-List all downloaded images.
+Run:
 
 ```bash
 docker images
 ```
 
 <p align="center">
-<img src="image/docker_image.png" width="700">
+<img src="images/docker_image.png" width="700">
 </p>
 
 Expected Output
 
 ```text
-REPOSITORY   TAG       IMAGE ID       CREATED      SIZE
-nginx        latest    xxxxxxxxx      xx days ago  xxxMB
+REPOSITORY   TAG      IMAGE ID      CREATED      SIZE
+nginx        latest   xxxxxxxxx     xx days ago  xxxMB
 ```
 
 ---
 
-## Understanding
+## Fill in the Blanks
 
-- `docker pull` downloads an image.
-- Images are stored locally.
-- One image can create multiple containers.
+Complete the command below.
+
+```bash
+docker ______ nginx
+```
+
+Complete the command below.
+
+```bash
+docker ______
+```
 
 ---
 
-## Think First
-
-Can multiple containers be created from one image?
+## Solution
 
 <details>
-<summary>Answer</summary>
 
-Yes.
+<summary>Show Solution</summary>
 
-One Docker image can create any number of independent containers.
+```bash
+docker pull nginx
+```
+
+```bash
+docker images
+```
 
 </details>
 
 ---
 
+## Understanding
+
+The `docker pull` command downloads an image from Docker Hub and stores it locally.
+
+The `docker images` command displays all locally available Docker images. These images can later be used to create one or more Docker containers.
+
+One Docker image can create multiple independent containers.
+
+---
+
+## Test & Verify
+
+Before executing the following command, predict its output.
+
+```bash
+docker images
+```
+
+Questions:
+
+- Will the NGINX image appear?
+- Will Docker display the image tag?
+- Will Docker display the image size?
+
+Now execute the command and compare your prediction with the actual output.
+
+---
+
 ## Checkpoint
 
-- [ ] nginx image downloaded
-- [ ] docker images lists nginx
-- [ ] No errors occurred
+Verify the following.
+
+- [ ] NGINX image downloaded successfully.
+- [ ] Image appears in Docker Images.
+- [ ] No download errors occurred.
+
+---
+
+## Experiment
+
+Try downloading another image.
+
+```bash
+docker pull alpine
+```
+
+Question:
+
+How is the Alpine image size different from the NGINX image?
+
+Record your observation.
 
 ---
 
@@ -322,105 +479,183 @@ One Docker image can create any number of independent containers.
 
 ## Overview
 
-A Docker container is a running instance of an image.
+After downloading the Docker image, the next step is to create a running container.
 
-In this chapter you will create your first NGINX container and make it accessible from your browser.
+A Docker container is an isolated runtime environment created from an image. In this chapter, you will launch an NGINX container, mount a local HTML directory, and expose the web server through port mapping.
 
 ---
 
-## Objective
+## What You Will Build
 
-Run NGINX inside Docker.
+You will build a running NGINX web server that:
+
+- Uses the official Docker image.
+- Mounts a local HTML folder.
+- Uses port mapping.
+- Serves a custom web page.
+
+---
+
+## Think First
+
+Before running the container, answer the following.
+
+### Question 1
+
+Why do we mount a local folder instead of copying HTML files into the container?
+
+### Question 2
+
+What is the purpose of port mapping?
 
 ---
 
 ## Implementation
 
+Run the following command.
+
 ```bash
-docker run --name my-nginx \
+docker run \
+--name my-nginx \
 -v $(pwd)/html:/usr/share/nginx/html:ro \
 -p 8080:80 \
 -d nginx
 ```
 
 <p align="center">
-<img src="image/docker-run.png" width="700">
+<img src="images/docker-run.png" width="700">
 </p>
 
 ---
 
-## Command Explanation
+## Command Breakdown
 
 | Option | Description |
 |---------|-------------|
-| --name | Assign container name |
-| -v | Mount local folder |
-| :ro | Read-only volume |
-| -p | Port Mapping |
-| -d | Detached mode |
+| `--name` | Assigns a name to the container |
+| `-v` | Mounts a local directory |
+| `:ro` | Read-only permission |
+| `-p` | Maps host port to container port |
+| `-d` | Runs the container in detached mode |
 
 ---
 
-## Understanding Port Mapping
+## Port Mapping
 
-The container listens on **port 80**, while your computer accesses it using **port 8080**.
+The NGINX server listens on **port 80** inside the container.
+
+The host machine accesses the web server through **port 8080**.
+
+<p align="center">
+<img src="images/port-mapping.png" width="700">
+</p>
 
 ```
 Browser
-   │
+      │
 localhost:8080
-   │
-Docker
-   │
-Container Port 80
+      │
+Docker Host
+      │
+Container :80
 ```
-
-<p align="center">
-<img src="image/port-mapping.png" width="700">
-</p>
 
 ---
 
-## Verify
+## Fill in the Blanks
 
-Visit
-
-```
-http://localhost:8080
-```
-
-or
+Complete the following command.
 
 ```bash
-curl http://localhost:8080
-```
-
-Expected Output
-
-```html
-<h1>Hello from Docker!</h1>
+docker run --name ______ \
+-p ______:80 \
+-d nginx
 ```
 
 ---
 
-## Think First
-
-What happens if you remove the `-p 8080:80` option?
+## Solution
 
 <details>
-<summary>Answer</summary>
 
-The container still runs, but the web server cannot be accessed from the host machine.
+<summary>Show Solution</summary>
+
+```bash
+docker run --name my-nginx \
+-p 8080:80 \
+-d nginx
+```
 
 </details>
 
 ---
 
+## Understanding
+
+When the container starts, Docker creates an isolated environment using the downloaded image.
+
+The mounted volume connects the local HTML directory with the container's web root, allowing any modification made to the HTML files to be reflected immediately without rebuilding the container.
+
+Port mapping connects port **8080** on the host machine to port **80** inside the container, allowing the web server to be accessed from a browser.
+
+---
+
+## Test & Verify
+
+Open your browser.
+
+```
+http://localhost:8080
+```
+
+Questions:
+
+- Is the web page displayed?
+- Is the HTML page loaded from your local directory?
+- What happens if you edit `index.html` and refresh the browser?
+
+---
+
 ## Checkpoint
 
-- [ ] Container started
-- [ ] Browser opens localhost:8080
-- [ ] HTML page is displayed
+- [ ] Container created successfully.
+- [ ] Browser displays the HTML page.
+- [ ] Port mapping works correctly.
+- [ ] Local HTML files are mounted correctly.
+
+---
+
+## Experiment
+
+Stop the running container.
+
+```bash
+docker stop my-nginx
+```
+
+Refresh the browser.
+
+Question:
+
+What happens after stopping the container?
+
+Explain why the webpage becomes inaccessible.
+
+---
+
+## Chapter Summary
+
+In this chapter, you learned how to:
+
+- Download Docker images.
+- Verify Docker images.
+- Create Docker containers.
+- Configure port mapping.
+- Mount local directories.
+- Deploy an NGINX web server.
+- Access the web server through a browser.
+
+The next chapter focuses on inspecting running containers, viewing logs, and managing the complete container lifecycle.
 
 ---
 
@@ -428,92 +663,199 @@ The container still runs, but the web server cannot be accessed from the host ma
 
 ## Overview
 
-Docker provides several commands to inspect running containers.
-
-These commands help monitor container status and troubleshoot problems.
+After creating a Docker container, it is important to monitor its status and inspect its activities. Docker provides several commands that help administrators verify whether a container is running correctly and diagnose potential issues.
 
 ---
 
-## List Running Containers
+## What You Will Build
+
+In this chapter, you will learn how to:
+
+- View running containers.
+- Inspect container information.
+- Monitor container logs.
+- Verify web server activity.
+
+---
+
+## Think First
+
+Before executing the commands, answer the following questions.
+
+### Question 1
+
+How can you verify whether a Docker container is currently running?
+
+### Question 2
+
+Why are container logs useful for troubleshooting?
+
+Write your answers before continuing.
+
+---
+
+## Implementation
+
+### Step 1 — Display Running Containers
+
+Run:
 
 ```bash
 docker ps
 ```
 
 <p align="center">
-<img src="image/docker-ps.png" width="700">
+<img src="images/docker-ps.png" width="700">
 </p>
+
+---
 
 Expected Output
 
 ```text
-STATUS    Up
-PORTS     8080->80
-NAME      my-nginx
+CONTAINER ID   IMAGE   STATUS   PORTS   NAMES
 ```
 
 ---
 
-## View Container Logs
+### Step 2 — Display Container Logs
+
+Run:
 
 ```bash
 docker logs my-nginx
 ```
 
 <p align="center">
-<img src="image/docker-logs.png" width="700">
+<img src="images/docker-logs.png" width="700">
 </p>
-
-The logs show:
-
-- Server startup
-- Requests
-- Errors
-- HTTP responses
 
 ---
 
-## Think First
+## Fill in the Blanks
 
-What is the difference between **docker ps** and **docker logs**?
+Complete the following command.
+
+```bash
+docker ______
+```
+
+Complete the following command.
+
+```bash
+docker ______ my-nginx
+```
+
+---
+
+## Solution
 
 <details>
-<summary>Answer</summary>
 
-docker ps shows whether the container is running.
+<summary>Show Solution</summary>
 
-docker logs shows what the application inside the container is doing.
+```bash
+docker ps
+```
+
+```bash
+docker logs my-nginx
+```
 
 </details>
 
 ---
 
+## Understanding
 
+The `docker ps` command displays all currently running containers together with their status, ports, and names.
 
-
-# Chapter 4 — Container Lifecycle
-
-## Overview
-
-Containers can be started, stopped, restarted, paused, and removed whenever necessary.
-
-The Docker image remains unchanged throughout these operations.
+The `docker logs` command displays the output generated by the application running inside the container. These logs are extremely useful for monitoring server activity and diagnosing problems.
 
 ---
 
-## Stop Container
+## Test & Verify
+
+Refresh your browser several times while the container is running.
+
+Execute:
+
+```bash
+docker logs my-nginx
+```
+
+Questions:
+
+- Can you observe new HTTP requests?
+- Do the timestamps change?
+- Does every page refresh generate a log entry?
+
+Compare your observations with your predictions.
+
+---
+
+## Checkpoint
+
+- [ ] Running container is displayed.
+- [ ] Container logs are visible.
+- [ ] Browser requests appear in the logs.
+- [ ] No runtime errors are displayed.
+
+---
+
+## Experiment
+
+Modify the HTML page while the container is still running.
+
+Refresh the browser.
+
+Question:
+
+Did the changes appear immediately?
+
+Explain why Docker can display the updated page without creating another container.
+
+---
+
+# Chapter 4 — Managing the Container Lifecycle
+
+## Overview
+
+Containers are temporary runtime environments. Docker provides lifecycle commands that allow developers to pause, resume, stop, restart, and remove containers whenever necessary.
+
+---
+
+## What You Will Build
+
+You will practice the complete lifecycle management of a Docker container.
+
+---
+
+## Think First
+
+Before executing the following commands, answer these questions.
+
+### Question 1
+
+Can a stopped container be started again?
+
+### Question 2
+
+What happens after a container is removed?
+
+---
+
+## Implementation
+
+### Stop the Container
 
 ```bash
 docker stop my-nginx
 ```
 
-<p align="center">
-<img src="image/docker-stop.png" width="650">
-</p>
-
 ---
 
-## Start Container Again
+### Start the Container
 
 ```bash
 docker start my-nginx
@@ -521,7 +863,7 @@ docker start my-nginx
 
 ---
 
-## Pause the Container
+### Pause the Container
 
 ```bash
 docker pause my-nginx
@@ -529,7 +871,7 @@ docker pause my-nginx
 
 ---
 
-## Resume the Container
+### Resume the Container
 
 ```bash
 docker unpause my-nginx
@@ -537,7 +879,7 @@ docker unpause my-nginx
 
 ---
 
-## Remove the Container
+### Remove the Container
 
 ```bash
 docker stop my-nginx
@@ -545,382 +887,263 @@ docker stop my-nginx
 docker rm my-nginx
 ```
 
----
-
 <p align="center">
-<img src="image/container-lifecycle.png" width="750">
+<img src="images/container-lifecycle.png" width="700">
 </p>
 
 ---
 
-## Lifecycle Summary
+## Fill in the Blanks
 
-| Command | Purpose |
-|----------|---------|
-| docker run | Create & Start |
-| docker stop | Stop |
-| docker start | Restart |
-| docker pause | Pause Execution |
-| docker unpause | Resume |
-| docker rm | Remove Container |
+Complete the commands below.
+
+```bash
+docker ______ my-nginx
+```
+
+```bash
+docker ______ my-nginx
+```
+
+```bash
+docker ______ my-nginx
+```
 
 ---
 
-## Think First
-
-After removing a container, can you start it again using `docker start`?
+## Solution
 
 <details>
-<summary>Answer</summary>
 
-No.
+<summary>Show Solution</summary>
 
-After removal, the container no longer exists.
+```bash
+docker stop my-nginx
 
-A new container must be created using `docker run`.
+docker start my-nginx
+
+docker rm my-nginx
+```
 
 </details>
 
 ---
 
-## Practical Exercise
+## Understanding
 
-Perform the following tasks:
+Stopping a container terminates the running application while preserving its data and configuration.
 
-- Pull the nginx image.
-- Create a container named **my-nginx**.
-- Open it in your browser.
-- Stop the container.
-- Restart it.
-- Remove it.
+Starting the container resumes execution from its previous state.
 
-Verify each step using Docker commands.
+Removing a container permanently deletes the container instance, but the Docker image remains available for creating new containers.
 
 ---
+
+## Test & Verify
+
+Execute each lifecycle command one by one.
+
+After every command, verify the container status using:
+
+```bash
+docker ps -a
+```
+
+Questions:
+
+- Does the container status change after each command?
+- What status is shown after stopping the container?
+- Is the container visible after removing it?
+
+---
+
+## Checkpoint
+
+- [ ] Container stopped successfully.
+- [ ] Container restarted successfully.
+- [ ] Container paused and resumed.
+- [ ] Container removed successfully.
+
+---
+
+## Experiment
+
+Remove the container.
+
+Now execute:
+
+```bash
+docker start my-nginx
+```
+
+Question:
+
+Why does Docker display an error?
+
+Explain your answer.
+
 ---
 
 # Mini Challenge
 
-Now that you understand the Docker basics, complete the following challenge without looking at the previous commands.
+Without referring to the previous sections, complete the following tasks.
 
-## Objective
+- Download the official NGINX image.
+- Create a container named **web-server**.
+- Expose it on port **8081**.
+- Mount the local HTML folder.
+- Verify the web page from a browser.
+- Display the container logs.
 
-Deploy a multi-page website using a single NGINX container.
-
----
-
-## Requirements
-
-Create the following files inside the **html** directory.
-
-```
-html/
-│
-├── index.html
-├── about.html
-└── contact.html
-```
-
-Run an NGINX container that:
-
-- Uses the same mounted volume
-- Uses host port **8081**
-- Serves all three pages successfully
-
-Verify the following URLs.
-
-```
-http://localhost:8081/
-
-http://localhost:8081/about.html
-
-http://localhost:8081/contact.html
-```
-
----
-
-## Self Assessment
-
-Before continuing, verify the following.
-
-- [ ] All pages are accessible.
-- [ ] No container restart was required after editing HTML.
-- [ ] The container is running correctly.
-- [ ] Port mapping is correct.
+Record every command you used.
 
 ---
 
 # Final Challenge
 
-## Objective
+## Scenario
 
-Customize the NGINX configuration and display a custom **404 Error Page**.
+Your organization wants to host a company landing page using Docker.
 
-### Requirements
+Requirements:
 
-Create the following files.
+- Create a new HTML page.
+- Deploy it using an NGINX container.
+- Use a different container name.
+- Use port **9090**.
+- Verify the website in your browser.
+- Stop and remove the container after testing.
 
-```
-nginx-lab/
-
-│
-├── html/
-│
-├── custom-404.html
-│
-└── nginx.conf
-```
-
-Your configuration should:
-
-- Listen on port 80
-- Serve files from `/usr/share/nginx/html`
-- Display `custom-404.html` for missing pages
-
-Run the container and verify:
-
-```
-http://localhost:8082
-```
-
-and
-
-```
-http://localhost:8082/unknown-page
-```
-
-The second URL should display your custom 404 page.
+Do not refer to the previous chapters while completing this challenge.
 
 ---
 
-# Troubleshooting
+# Epilogue
 
-## Error 1
+Congratulations!
 
-### Port Already Allocated
+You have successfully deployed and managed an NGINX web server using Docker.
 
-```
-docker: Error response from daemon:
-bind: address already in use
-```
-
-### Cause
-
-Another application is already using the selected port.
-
-### Solution
-
-Use another port.
-
-Example
-
-```bash
-docker run -p 8081:80 nginx
-```
+Throughout this lab you learned how Docker images become containers, how local files are mounted into containers, how networking enables browser access, and how Docker simplifies application deployment.
 
 ---
 
-## Error 2
-
-### Container Name Already Exists
-
-```
-Conflict.
-The container name "/my-nginx" is already in use.
-```
-
-### Cause
-
-A container with the same name already exists.
-
-### Solution
-
-Remove the existing container.
-
-```bash
-docker rm my-nginx
-```
-
----
-
-## Error 3
-
-### Connection Refused
-
-```
-curl: (7)
-Failed to connect to localhost
-```
-
-### Cause
-
-- Container is stopped.
-- Wrong port mapping.
-- Docker Engine is not running.
-
-### Solution
-
-```bash
-docker ps
-
-docker start my-nginx
-```
-
----
-
-## Error 4
-
-### Image Not Found
-
-```
-Unable to find image
-```
-
-### Cause
-
-The image has not been downloaded.
-
-### Solution
-
-```bash
-docker pull nginx
-```
-
----
-
-# Best Practices
-
-Follow these best practices when working with Docker.
-
-- Always use official Docker images.
-- Give containers meaningful names.
-- Use read-only volumes whenever possible.
-- Avoid using the `latest` tag in production.
-- Remove unused containers regularly.
-- Keep Docker images updated.
-- Store application data outside the container.
-- Use Git to version your project files.
-
----
-
-# Key Concepts Learned
-
-Throughout this lab you learned the following concepts.
-
-| Concept | Description |
-|----------|-------------|
-| Docker Image | Read-only application template |
-| Docker Container | Running instance of an image |
-| Docker Hub | Public image repository |
-| Volume Mount | Share files between host and container |
-| Port Mapping | Connect host and container ports |
-| Docker Logs | View container output |
-| Container Lifecycle | Start, Stop, Pause, Remove |
-
----
-
-# Workflow Summary
-
-The complete workflow followed in this lab is shown below.
+## Architecture Summary
 
 ```text
 Docker Hub
       │
       ▼
-docker pull nginx
-      │
-      ▼
 Docker Image
       │
       ▼
-docker run
+Docker Container
       │
       ▼
-NGINX Container
+NGINX Web Server
       │
       ▼
-Port Mapping (8080 → 80)
+Custom HTML Page
       │
       ▼
-Browser Access
-      │
-      ▼
-docker ps
-docker logs
-      │
-      ▼
-docker stop
-docker start
-docker rm
+Browser
 ```
 
 ---
 
-# Lab Summary
+## Workflow Summary
 
-In this lab you successfully:
+```text
+Verify Docker
+      │
+      ▼
+Pull Image
+      │
+      ▼
+Create Container
+      │
+      ▼
+Mount HTML Folder
+      │
+      ▼
+Configure Port Mapping
+      │
+      ▼
+Access Website
+      │
+      ▼
+Inspect Container
+      │
+      ▼
+View Logs
+      │
+      ▼
+Manage Lifecycle
+```
 
-- Installed and verified Docker.
-- Downloaded the official NGINX image.
-- Created a Docker container.
-- Mounted a local HTML directory.
-- Configured port mapping.
-- Accessed the web server from a browser.
-- Inspected running containers.
-- Viewed container logs.
-- Managed the container lifecycle.
-- Practiced Docker troubleshooting.
+---
 
-This workflow represents the foundation of container-based application deployment and is widely used in modern software development and DevOps environments.
+# Key Principles
+
+- Docker Images are templates.
+- Containers are running instances of images.
+- One image can create multiple containers.
+- Volume mounting shares files between host and container.
+- Port mapping connects host applications with container services.
+- Docker logs simplify troubleshooting.
+- Containers are temporary and can be recreated at any time.
+
+---
+
+# Troubleshooting
+
+| Problem | Cause | Solution |
+|----------|-------|----------|
+| Port already in use | Another application is using the port | Use another host port |
+| Container name already exists | Duplicate container name | Remove or rename the container |
+| Website not accessible | Container stopped | Start the container |
+| Image not found | Image not downloaded | Run `docker pull nginx` |
+
+---
+
+# Best Practices
+
+- Use official Docker images.
+- Assign meaningful container names.
+- Keep images updated.
+- Remove unused containers regularly.
+- Mount project files instead of copying them.
+- Avoid using the `latest` tag in production.
+- Use Git to maintain project versions.
 
 ---
 
 # Next Steps
 
-After completing this lab, continue learning the following topics.
+Continue learning:
 
-1. Writing Dockerfiles
+1. Dockerfile
 2. Docker Compose
 3. Docker Networks
 4. Docker Volumes
-5. Multi-Container Applications
-6. Docker Hub Publishing
-7. Kubernetes Fundamentals
+5. Multi-container Applications
+6. Docker Hub
+7. Kubernetes
 
 ---
 
 # Additional Resources
 
-- Docker Documentation  
-  https://docs.docker.com/
-
-- Docker CLI Reference  
-  https://docs.docker.com/reference/cli/docker/
-
-- Docker Hub  
-  https://hub.docker.com/
-
-- Official NGINX Image  
-  https://hub.docker.com/_/nginx
-
-- NGINX Documentation  
-  https://nginx.org/en/docs/
+- https://docs.docker.com/
+- https://docs.docker.com/reference/cli/
+- https://hub.docker.com/
+- https://hub.docker.com/_/nginx
+- https://nginx.org/en/docs/
 
 ---
 
 # Conclusion
 
-This lab demonstrated how Docker simplifies web server deployment by running NGINX inside an isolated container. You learned how to download images, create containers, configure networking, mount local files, inspect container status, and manage the complete lifecycle of a container.
+This lab introduced the fundamental concepts of Docker by deploying an NGINX web server inside a container. You learned how to download Docker images, create containers, configure networking, mount local directories, inspect running containers, monitor logs, and manage the complete container lifecycle.
 
-These skills provide a strong foundation for working with Docker in real-world development, DevOps, and cloud environments.
-
----
-
-## License
-
-This lab manual is provided for educational purposes.
-
-Copyright © 2026
-
-MIT License
-
+These practical skills provide a solid foundation for learning advanced Docker, DevOps, and cloud-native technologies.
