@@ -1,101 +1,91 @@
 # Running an NGINX Web Server in a Docker Container
 
-> **Hands-on Docker Lab using Puku CLI**
+> A Hands-On Lab Using Puku CLI
 
 ---
 
-# 1. Introduction
+## 1. Introduction
 
-This lab demonstrates how to deploy a simple **NGINX Web Server** inside a Docker container using **Puku CLI**. You will interact with Puku CLI using natural language prompts while it performs the required Docker operations.
+This lab teaches you how to deploy a static website using **NGINX** inside a **Docker container**, controlled through **Puku CLI**.
 
-During this lab, you will:
+Containerization is one of the most widely used deployment practices in modern software engineering. Instead of installing a web server directly on a machine, teams package the server and its dependencies into a container image. The image runs identically on any system that has Docker installed, which removes "it works on my machine" problems and simplifies deployment across development, testing, and production environments.
 
-- Pull the official NGINX Docker image.
-- Create and run an NGINX container.
-- Serve a custom HTML page.
-- Verify the running container.
-- View container logs.
-- Manage the Docker container lifecycle.
+NGINX is one of the most common web servers used in production systems, both as a static file server and as a reverse proxy in front of application servers. Learning how to containerize NGINX is a foundational skill for backend engineers, DevOps engineers, and anyone working with microservice architectures.
 
-<p align="center">
-    <img src="images/how_it_work.png" width="850">
-</p>
+In this lab, you will build a working containerized web server: you will pull an official image, run a container from it, mount your own HTML content into that container, expose it on a host port, inspect its logs, and manage its lifecycle.
 
 ---
 
-# 2. Learning Objectives
+## 2. Learning Objectives
 
-After completing this lab, you will be able to:
+By the end of this lab, you will be able to:
 
-- Pull Docker images.
-- Create Docker containers.
-- Configure Docker port mapping.
-- Mount local HTML files.
-- Verify running containers.
-- Inspect container logs.
-- Manage the container lifecycle.
-
----
-
-# 3. Prerequisites
-
-Before starting this lab, ensure the following tools are available.
-
-| Software | Purpose |
-|-----------|----------|
-| Docker Engine | Run Docker containers |
-| Puku CLI | Execute Docker tasks |
-| Web Browser | Test the deployed web page |
-
-Basic knowledge of Linux commands and HTML is recommended.
+- **Create** a project workspace for a containerized web application.
+- **Configure** Docker port mapping between host and container.
+- **Build** a running NGINX container from an official image.
+- **Deploy** custom static HTML content using volume mounting.
+- **Analyze** container logs to verify server behavior.
+- **Test** a deployed web server using a browser.
+- **Debug** common container startup and accessibility issues.
+- **Integrate** lifecycle commands (stop, start, remove) into a basic operational workflow.
 
 ---
 
-# 4. Real-World Scenario
+## 3. Prerequisites
 
-A development team needs a lightweight web server to test a static website. Instead of installing NGINX directly on every machine, the team decides to deploy it inside a Docker container.
-
-Your task is to use **Puku CLI** to deploy the NGINX web server, verify that it is running correctly, and manage the container.
+| Requirement | Purpose |
+|---|---|
+| Docker Engine | Run and manage containers |
+| Puku CLI | Execute Docker operations through natural language prompts |
+| Web Browser | View the deployed web page |
+| Basic Linux command-line knowledge | Navigate folders and run commands |
+| Basic HTML knowledge | Edit the served web page |
 
 ---
 
-# 5. Environment Setup
+## 4. Prologue — Real-World Scenario
 
-## Step 1 — Verify Docker Installation
+A development team needs a lightweight, disposable environment to test a static company website before it goes live. Installing NGINX directly on every developer's machine would create inconsistent configurations and "works on my machine" issues.
 
-### Ask Puku CLI
+Instead, the team decides to package NGINX as a Docker container. Each developer pulls the same image, mounts the same project folder, and runs the site identically, regardless of their operating system.
 
+**Your role:** act as the developer responsible for setting up this containerized environment.
+
+**Expected outcome:** a running NGINX container, accessible from a browser, serving a custom HTML page, with logs and lifecycle fully under your control.
+
+---
+
+## 5. Environment Setup
+
+### 5.1 System Requirements
+
+- A machine with Docker Engine installed
+- Puku CLI configured and authenticated
+- At least one available port (e.g., 8080) not in use by another application
+
+### 5.2 Verify Docker Installation
+
+**Ask Puku CLI:**
 ```text
 Check whether Docker is installed and display the installed version.
 ```
 
-Expected Result
-
-- Docker version information is displayed.
+**Expected Result:** Docker version information is displayed.
 
 <p align="center">
     <img src="images/version_dockerinfo.png" width="850">
 </p>
 
----
+### 5.3 Verify Docker Engine Is Running
 
-## Step 2 — Verify Docker Engine
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Verify that Docker Engine is running properly.
 ```
 
-Expected Result
+**Expected Result:** Docker Engine is active and ready to create containers.
 
-- Docker Engine is active and ready to create containers.
-
----
-
-## Step 3 — Prepare the Workspace
-
-Create the following project structure.
+### 5.4 Create the Project Structure
 
 ```text
 nginx-lab/
@@ -108,7 +98,9 @@ nginx-lab/
 └── README.md
 ```
 
-Create the following HTML file.
+### 5.5 Create the Initial HTML File
+
+`html/index.html`:
 
 ```html
 <!DOCTYPE html>
@@ -116,636 +108,423 @@ Create the following HTML file.
 <head>
     <title>NGINX Docker Lab</title>
 </head>
-
 <body>
-
-<h1>Hello from NGINX running in Docker!</h1>
-
+    <h1>Hello from NGINX running in Docker!</h1>
 </body>
 </html>
 ```
 
----
+<p align="center">
+    <img src="images/how_it_work.png" width="850">
+</p>
 
-# Think First
+#### Think First
 
-1. Why must an NGINX image be downloaded before creating a container?
+1. Why must an NGINX image be downloaded before a container can be created?
+2. Why is the HTML file stored outside the container instead of inside it?
 
-2. Why is the HTML file stored outside the container?
-
----
-
-# Fill in the Blanks
-
-Complete the following.
+#### Fill in the Blanks
 
 ```
 A Docker container is created from a Docker __________.
 ```
-
 ```
 NGINX serves web content from the __________ folder.
 ```
 
----
-
-# Solution
-
 <details>
-<summary>Show Answers</summary>
+<summary>Solution</summary>
 
 ```
 Image
 ```
-
 ```
 HTML
 ```
-
 </details>
 
----
+#### Test & Verify
 
-# Test & Verify
+Before continuing, confirm:
 
-Before continuing, confirm the following.
+- [ ] Docker is installed.
+- [ ] Docker Engine is running.
+- [ ] The project folder has been created.
+- [ ] The HTML file is ready.
 
-- Docker is installed.
-- Docker Engine is running.
-- The project folder has been created.
-- The HTML file is ready.
+#### Experiment
 
----
-
-# Checkpoint
-
-- [ ] Docker installation verified.
-- [ ] Docker Engine running.
-- [ ] Workspace prepared.
-- [ ] HTML page created.
+Modify the text inside `index.html` before deploying any container. Predict whether the page will be visible at this stage. Record your observation and reasoning.
 
 ---
 
-# Experiment
+## 6. Chapters
 
-Modify the text inside **index.html** before deploying the container.
+### Chapter 1 — Pull the NGINX Docker Image
 
-Predict whether the page will be visible before an NGINX container is started.
+#### Overview
 
-Record your observation.
-````
-````md
----
+Before a container can be created, the required image must be downloaded from a registry. This chapter covers pulling and verifying the official NGINX image.
 
-# Chapter 1 — Pull the NGINX Docker Image
+#### What You Will Build
 
-## Overview
+- A locally available NGINX Docker image, verified and ready to use.
 
-Before creating a container, the required Docker image must be downloaded from Docker Hub. In this chapter, you will pull the official NGINX image and verify that it has been downloaded successfully.
+#### Think First
 
----
-
-## What You Will Build
-
-You will:
-
-- Download the official NGINX Docker image.
-- Verify the downloaded image.
-
----
-
-## Think First
-
-Before continuing, answer the following questions.
-
-1. What is a Docker Image?
-
+1. What is a Docker image?
 2. Can a container be created without an image?
 
----
+#### Implementation
 
-## Implementation
+**Step 1 — Pull the NGINX Image**
 
-### Step 1 — Pull the NGINX Image
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Pull the latest official NGINX Docker image from Docker Hub.
 ```
 
-Expected Result
-
-- The image is downloaded successfully.
+**Expected Result:** The image downloads successfully.
 
 <p align="center">
     <img src="images/docker_pull.png" width="850">
 </p>
 
----
+**Step 2 — Verify the Image**
 
-### Step 2 — Verify the Image
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Display all Docker images available on the local machine.
 ```
 
-Expected Result
-
-- The NGINX image appears in the image list.
+**Expected Result:** The NGINX image appears in the image list.
 
 <p align="center">
     <img src="images/docker_image.png" width="850">
 </p>
 
----
-
-## Fill in the Blanks
-
-Complete the following.
+#### Fill in the Blanks
 
 ```
 Docker images are downloaded from __________.
 ```
-
 ```
 The downloaded image is stored on the __________ machine.
 ```
 
----
-
-## Solution
-
 <details>
-<summary>Show Answers</summary>
+<summary>Solution</summary>
 
 ```
 Docker Hub
 ```
-
 ```
 Local
 ```
-
 </details>
 
----
+#### Understanding
 
-## Understanding
+The official NGINX image is downloaded from Docker Hub and stored locally. Once downloaded, the same image can be reused to create multiple containers without downloading it again, since Docker caches images locally by layer.
 
-The official NGINX image is downloaded from Docker Hub and stored locally. Once downloaded, it can be reused multiple times to create Docker containers without downloading it again.
+#### Test & Verify
 
----
+Predict what happens if you run the pull command a second time, then run it and compare the result to your prediction.
 
-## Test & Verify
-
-Verify the following.
-
-- The image download completed successfully.
-- The NGINX image appears in the local image list.
-
----
-
-## Checkpoint
+#### Checkpoint
 
 - [ ] NGINX image downloaded.
-- [ ] Image verified successfully.
+- [ ] Image verified in the local image list.
+
+#### Experiment
+
+Ask Puku CLI to display the Docker images again. Observe whether the image is re-downloaded or simply read from local storage, and explain why.
 
 ---
 
-## Experiment
+### Chapter 2 — Create and Run the NGINX Container
 
-Ask Puku CLI to display Docker images again.
+#### Overview
 
-Observe whether the image is downloaded again or simply displayed from local storage.
+With the image available locally, you can now create a running container from it. This container will serve the HTML page stored in your local workspace.
 
----
+#### What You Will Build
 
-# Chapter 2 — Create and Run the NGINX Container
+- A running NGINX container with the local HTML folder mounted and a host port mapped to the container's web port.
 
-## Overview
-
-After downloading the image, you can create a running Docker container. The container will serve the HTML page stored in your local workspace.
-
----
-
-## What You Will Build
-
-You will:
-
-- Create an NGINX container.
-- Mount the local HTML folder.
-- Configure Docker port mapping.
-- Access the web page from a browser.
-
----
-
-## Think First
+#### Think First
 
 1. Why is port mapping required?
+2. Why is the HTML folder mounted into the container instead of copied?
 
-2. Why is the HTML folder mounted into the container?
+#### Implementation
 
----
+**Step 1 — Run the Container**
 
-## Implementation
-
-### Step 1 — Run the Container
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
-Create a Docker container named my-nginx using the downloaded NGINX image. Mount the local html directory to the NGINX web root in read-only mode and expose the web server on port 8080.
+Create a Docker container named my-nginx using the downloaded NGINX image. Mount the local html directory to the NGINX web root in read-only mode and expose the web server on port ____.
 ```
 
-Expected Result
+> Fill in the blank with the host port you intend to use (e.g., `8080`) before issuing the prompt.
 
-- The container starts successfully.
+**Expected Result:** The container starts successfully.
 
 <p align="center">
     <img src="images/docker-run.png" width="850">
 </p>
 
----
+**Understanding the Port Mapping**
 
-### Understanding the Port Mapping
-
-The browser accesses the application through **localhost:8080**, while NGINX listens on **port 80** inside the container.
+The browser accesses the application through `localhost:8080`, while NGINX listens on port `80` inside the container.
 
 <p align="center">
     <img src="images/port-mapping.png" width="850">
 </p>
 
----
+**Step 2 — Verify the Running Container**
 
-### Step 2 — Verify the Running Container
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Display all currently running Docker containers.
 ```
 
-Expected Result
-
-- The **my-nginx** container appears with the **Up** status.
+**Expected Result:** The `my-nginx` container appears with the **Up** status.
 
 <p align="center">
     <img src="images/docker-ps.png" width="850">
 </p>
 
----
-
-## Fill in the Blanks
-
-Complete the following.
+#### Fill in the Blanks
 
 ```
-The container is accessible through port ________.
+The container is accessible through host port ________.
 ```
-
 ```
 NGINX listens on port ________ inside the container.
 ```
 
----
-
-## Solution
-
 <details>
-<summary>Show Answers</summary>
+<summary>Solution</summary>
 
 ```
 8080
 ```
-
 ```
 80
 ```
-
 </details>
 
----
+#### Understanding
 
-## Understanding
+Docker maps host port `8080` to container port `80`. When a browser sends a request to `http://localhost:8080`, Docker forwards that request to the NGINX process running inside the container. The container itself is unaware of the host's port number; it only ever listens on its internal port `80`.
 
-Docker maps **Host Port 8080** to **Container Port 80**. When a browser accesses `http://localhost:8080`, Docker forwards the request to the NGINX web server running inside the container.
+#### Test & Verify
 
----
-
-## Test & Verify
-
-Open the following URL in your browser.
+Open the following URL in your browser:
 
 ```
 http://localhost:8080
 ```
 
-Verify that your custom HTML page is displayed successfully.
+Predict what you will see before opening the page, then verify that your custom HTML page is displayed.
 
----
-
-## Checkpoint
+#### Checkpoint
 
 - [ ] Container created successfully.
 - [ ] Container is running.
 - [ ] Port mapping works correctly.
-- [ ] Web page is accessible.
+- [ ] Web page is accessible from the browser.
+
+#### Experiment
+
+Edit the contents of `index.html`. Refresh the browser without restarting the container. Observe whether the change appears immediately, and explain why the container does not need to be recreated after modifying a mounted file.
 
 ---
 
-## Experiment
+### Chapter 3 — View Container Logs
 
-Edit the contents of **index.html**.
+#### Overview
 
-Refresh the browser and observe whether the changes appear immediately.
+After deployment, it is important to confirm that the server is actually running correctly. Docker logs provide visibility into the startup process and incoming client requests.
 
-Explain why the container does not need to be recreated after modifying the HTML file.
-````
-````md
----
+#### What You Will Build
 
-# Chapter 3 — View Container Logs
+- A working understanding of how to read NGINX container logs and interpret request activity.
 
-## Overview
+#### Think First
 
-After deploying the container, it is important to verify that the NGINX server is running correctly. Docker logs provide useful information about the container startup process and incoming client requests.
+1. Why are Docker logs important during and after deployment?
+2. What kind of information can be obtained from container logs?
 
----
+#### Implementation
 
-## What You Will Build
+**Step 1 — Display Container Logs**
 
-You will:
-
-- View the NGINX container logs.
-- Verify that the web server is running.
-- Understand the information displayed in the logs.
-
----
-
-## Think First
-
-Before continuing, answer the following questions.
-
-1. Why are Docker logs important?
-
-2. What information can be obtained from container logs?
-
----
-
-## Implementation
-
-### Step 1 — Display Container Logs
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Display the logs of the running Docker container named my-nginx.
 ```
 
-Expected Result
+**Expected Result:**
 
 - Startup information is displayed.
-- NGINX version is shown.
+- The NGINX version is shown.
 - Request logs are visible.
-- The container is running normally.
+- The container is confirmed to be running normally.
 
 <p align="center">
     <img src="images/docker-logs.png" width="850">
 </p>
 
----
-
-## Key Observations
-
-From the output, observe the following.
+#### Key Observations
 
 - NGINX starts successfully.
 - The installed NGINX version is displayed.
 - Incoming browser requests are recorded.
-- HTTP Status **200 OK** confirms successful responses.
+- HTTP status `200 OK` confirms successful responses.
 
----
-
-## Fill in the Blanks
-
-Complete the following.
+#### Fill in the Blanks
 
 ```
 Container activity can be monitored using Docker ________.
 ```
-
 ```
 A successful browser request returns HTTP status ________.
 ```
 
----
-
-## Solution
-
 <details>
-<summary>Show Answers</summary>
+<summary>Solution</summary>
 
 ```
 Logs
 ```
-
 ```
 200 OK
-``>
-
+```
 </details>
 
----
+#### Understanding
 
-## Understanding
+Container logs capture standard output and standard error from the process running inside the container. For NGINX, this includes startup messages and an access log entry for every HTTP request, which is essential for debugging and for verifying that traffic is reaching the server as expected.
 
-Container logs help monitor application behavior while the container is running. They provide useful information for debugging, verifying deployment, and identifying runtime issues.
+#### Test & Verify
 
----
-
-## Test & Verify
-
-Refresh the browser several times.
-
-Ask Puku CLI again:
+Predict how the log output will change after refreshing the browser several times, then refresh and re-run the logs prompt to confirm.
 
 ```text
 Display the logs of the running Docker container named my-nginx.
 ```
 
-Verify that additional request entries appear in the output.
-
----
-
-## Checkpoint
+#### Checkpoint
 
 - [ ] Logs displayed successfully.
 - [ ] NGINX startup verified.
-- [ ] Browser requests recorded.
-- [ ] Container operating normally.
+- [ ] Browser requests recorded in the logs.
+- [ ] Container confirmed to be operating normally.
+
+#### Experiment
+
+Refresh the browser multiple times and compare the new log entries against the earlier output. What specifically changes between entries (timestamp, request path, status code)?
 
 ---
 
-## Experiment
+### Chapter 4 — Manage the Container Lifecycle
 
-Refresh the browser multiple times and compare the updated log entries.
+#### Overview
 
-What changes do you observe in the request log?
+Containers are not permanent; they can be stopped, restarted, and removed as needed. This chapter covers the basic lifecycle operations required to operate a containerized service responsibly.
 
----
+#### What You Will Build
 
-# Chapter 4 — Manage the Container Lifecycle
-
-## Overview
-
-Docker allows containers to be started, stopped, restarted, and removed whenever required. In this chapter, you will perform the basic lifecycle operations of the NGINX container.
-
----
-
-## What You Will Build
-
-You will learn how to:
-
-- Stop a container.
-- Restart a container.
-- Remove a container.
-- Understand the Docker container lifecycle.
+- Practical familiarity with stopping, starting, and removing a Docker container.
 
 <p align="center">
     <img src="images/container-lifecycle.png" width="850">
 </p>
 
----
+#### Think First
 
-## Think First
-
-Before continuing, answer the following questions.
-
-1. What happens after a container is stopped?
-
+1. What happens to a container's process after it is stopped?
 2. Can a removed container be started again?
 
----
+#### Implementation
 
-## Implementation
+**Step 1 — Stop the Container**
 
-### Step 1 — Stop the Container
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Stop the running Docker container named my-nginx.
 ```
 
-Expected Result
+**Expected Result:** The container stops successfully.
 
-- The container stops successfully.
+**Step 2 — Start the Container**
 
----
-
-### Step 2 — Start the Container
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Start the Docker container named my-nginx.
 ```
 
-Expected Result
+**Expected Result:** The container starts successfully.
 
-- The container starts successfully.
+**Step 3 — Remove the Container**
 
----
-
-### Step 3 — Remove the Container
-
-### Ask Puku CLI
-
+**Ask Puku CLI:**
 ```text
 Stop the container if necessary and remove the Docker container named my-nginx.
 ```
 
-Expected Result
+**Expected Result:** The container is removed successfully.
 
-- The container is removed successfully.
-
----
-
-## Fill in the Blanks
-
-Complete the following.
+#### Fill in the Blanks
 
 ```
 A stopped container can be ________ again.
 ```
-
 ```
 A removed container must be ________ again before use.
 ```
 
----
-
-## Solution
-
 <details>
-<summary>Show Answers</summary>
+<summary>Solution</summary>
 
 ```
 Started
 ```
-
 ```
 Created
-``>
-
+```
 </details>
 
----
+#### Understanding
 
-## Understanding
+Stopping a container pauses its execution without deleting it; the same container instance, including any state inside its writable layer, can be started again later.
 
-Stopping a container pauses its execution without deleting it. The container can be started again whenever needed.
+Removing a container permanently deletes that container instance. The underlying Docker image is not affected and remains available locally, so a new container can be created from it at any time.
 
-Removing a container permanently deletes that container instance. However, the Docker image remains available and can be used to create a new container.
+#### Test & Verify
 
----
+- [ ] The container stops successfully.
+- [ ] The container starts successfully.
+- [ ] The container is removed successfully.
 
-## Test & Verify
-
-Verify the following.
-
-- The container stops successfully.
-- The container starts successfully.
-- The container is removed successfully.
-
----
-
-## Checkpoint
+#### Checkpoint
 
 - [ ] Container stopped.
 - [ ] Container restarted.
 - [ ] Container removed.
-- [ ] Docker image still available.
+- [ ] Docker image confirmed still available.
+
+#### Experiment
+
+After removing the container, ask Puku CLI to display the available Docker images. Observe whether the NGINX image still exists, and explain why it remains available after the container has been removed.
 
 ---
 
-## Experiment
+## 7. Mini Challenge
 
-After removing the container, ask Puku CLI to display the available Docker images.
-
-Observe whether the NGINX image still exists and explain why it remains available after the container has been removed.
-````
-````md
----
-
-# Mini Challenge
-
-Complete the following tasks independently using **Puku CLI**.
-
-### Task List
+Complete the following tasks independently using Puku CLI:
 
 - Pull the official NGINX Docker image.
 - Create a container named **web-server**.
@@ -754,47 +533,37 @@ Complete the following tasks independently using **Puku CLI**.
 - Verify that the website is accessible.
 - Display the container logs.
 
-Record the prompts used and compare the results with the previous exercises.
+Record the exact prompts you used and compare the results with the previous exercises. No solution is provided for this task.
 
 ---
 
-# Final Challenge
+## 8. Final Challenge
 
-## Scenario
+### Scenario
 
-A development team wants to deploy a simple company landing page using Docker. Your task is to create and deploy the website using Puku CLI.
+A development team wants to deploy a simple company landing page using Docker. Your task is to design and deploy this website using Puku CLI.
 
 ### Requirements
 
-- Create a new HTML page.
+- Create a new HTML page representing a basic landing page.
 - Deploy it using an NGINX container.
-- Use a different container name.
-- Use **port 9090**.
+- Use a container name different from previous exercises.
+- Expose the container on **port 9090**.
 - Verify the website from a browser.
 - Display the container logs.
-- Remove the container after testing.
+- Remove the container after testing is complete.
 
 ---
 
-# Epilogue
+## 9. Epilogue
 
-In this lab, you successfully deployed an NGINX web server using Docker through **Puku CLI**.
+In this lab, you deployed a fully functional NGINX web server using Docker, orchestrated through Puku CLI.
 
-You learned how to:
+**Architecture summary:** a host machine running Docker Engine, an NGINX image pulled from Docker Hub, and a container instance with a mounted local HTML directory, exposed through host-to-container port mapping.
 
-- Download an official Docker image.
-- Create and run a Docker container.
-- Mount a local HTML directory.
-- Configure Docker port mapping.
-- Verify the running container.
-- View Docker logs.
-- Manage the Docker container lifecycle.
+**Feature summary:** image management, container creation, volume mounting, port mapping, log inspection, and full lifecycle control (stop, start, remove).
 
-The skills learned in this lab provide a practical foundation for working with Docker-based applications.
-
----
-
-# Workflow Summary
+**Workflow:**
 
 ```text
 Verify Docker
@@ -823,71 +592,63 @@ Stop / Start / Remove Container
 
 ---
 
-# Key Principles
+## 10. Key Principles
 
-- A Docker Image is used to create containers.
-- A Docker Container is a running instance of an image.
-- Docker Hub stores official container images.
-- Port mapping connects the host to the container.
-- Volume mounting allows local files to be served inside a container.
-- Docker logs help monitor container activity.
-- Containers can be stopped, restarted, and removed without deleting the image.
+- A Docker image is a read-only template used to create containers.
+- A Docker container is a running instance of an image.
+- Docker Hub stores official, publicly available container images.
+- Port mapping connects a host machine's network interface to a container's internal port.
+- Volume mounting allows local files to be served live inside a container without rebuilding it.
+- Docker logs provide visibility into container startup and runtime activity.
+- Containers can be stopped, restarted, and removed independently of the image they were created from.
 
 ---
 
-# Troubleshooting
+## 11. Troubleshooting
 
 | Problem | Cause | Solution |
-|----------|-------|----------|
+|---|---|---|
 | Docker is not running | Docker Engine is stopped | Start Docker Engine and try again |
 | NGINX image not found | Image has not been downloaded | Pull the official NGINX image again |
 | Website is not accessible | Container is not running | Verify the container status and restart it |
-| Port already in use | Another application is using the selected port | Use a different host port |
+| Port already in use | Another application is using the selected host port | Use a different host port |
+| Changes to HTML not reflected | Volume not mounted correctly | Re-check the mount path used when creating the container |
 
 ---
 
-# Best Practices
+## 12. Best Practices
 
 - Use official Docker images whenever possible.
-- Assign meaningful names to Docker containers.
-- Store project files outside the container.
-- Verify Docker resources after each operation.
-- Remove unused containers to keep the environment clean.
+- Assign meaningful, descriptive names to Docker containers.
+- Store project files outside the container so they persist independently of the container's lifecycle.
+- Verify Docker resources (images, containers, ports) after each major operation.
+- Remove unused containers regularly to keep the environment clean.
+- Avoid hardcoding host ports in scripts; make them configurable.
 
 ---
 
-# Next Steps
+## 13. Next Steps
 
 After completing this lab, continue exploring:
 
-- Dockerfile
-- Docker Compose
-- Docker Volumes
-- Docker Networks
-- Multi-container Applications
-- Kubernetes Fundamentals
+- Writing a custom Dockerfile
+- Docker Compose for multi-service applications
+- Docker Volumes for persistent data
+- Docker Networks for inter-container communication
+- Multi-container application architectures
+- Kubernetes fundamentals
 
 ---
 
-# Additional Resources
+## 14. Additional Resources
 
-- Docker Documentation  
-  https://docs.docker.com/
-
-- Docker Hub  
-  https://hub.docker.com/
-
-- Official NGINX Image  
-  https://hub.docker.com/_/nginx
-
-- NGINX Documentation  
-  https://nginx.org/en/docs/
+- Docker Documentation — https://docs.docker.com/
+- Docker Hub — https://hub.docker.com/
+- Official NGINX Image — https://hub.docker.com/_/nginx
+- NGINX Documentation — https://nginx.org/en/docs/
 
 ---
 
-# Conclusion
+## 15. Conclusion
 
-This lab demonstrated how to deploy, verify, and manage an NGINX web server using Docker through **Puku CLI**.
-
-By completing the exercises, you gained practical experience with Docker images, containers, networking, volume mounting, logging, and lifecycle management. These skills provide a solid starting point for more advanced Docker and containerization workflows.
-````
+This lab demonstrated how to deploy, verify, and manage an NGINX web server using Docker through Puku CLI. By completing the exercises, you gained practical experience with Docker images, containers, networking, volume mounting, logging, and lifecycle management — a solid foundation for more advanced Docker and containerization workflows.
