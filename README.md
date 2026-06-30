@@ -11,7 +11,7 @@ This lab is built around **Puku CLI** — you will not type raw Docker commands 
 The goal: deploy a static website using **NGINX** inside a **Docker container**, with everything driven through Puku CLI prompts — from pulling the image to managing the container's full lifecycle.
 
 <p align="center">
-    <img src="images/how_it_work.svg" width="850">
+    <img src="images/1_1.gif" width="850">
 </p>
 
 The diagram above is the entire lab in one picture: pull the NGINX image from Docker Hub → run it as a container → verify it with `docker ps`, while your local `html` folder is mounted into the container at `/usr/share/nginx/html`, NGINX's default web root.
