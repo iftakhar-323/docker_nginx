@@ -152,7 +152,7 @@ Create a Docker container named my-nginx using the downloaded NGINX image. Mount
 </p>
 
 <p align="center">
-    <img src="images/port-mapping.png" width="850">
+    <img src="images/4_4.svg" width="850">
 </p>
 
 **Ask Puku CLI:**
@@ -235,7 +235,7 @@ Logs
 ### Chapter 4 — Manage the Container Lifecycle
 
 <p align="center">
-    <img src="images/container-lifecycle.png" width="850">
+    <img src="images/5_5.svg" width="850">
 </p>
 
 **Think First:** What happens after a container is stopped? Can a removed container come back?
